@@ -295,12 +295,6 @@ const INTER_TIGHT: PageFont = {
   stack: "'Inter Tight', sans-serif",
 };
 
-const DM_MONO: PageFont = {
-  value: "dm-mono",
-  label: "DM Mono",
-  stack: "'DM Mono', monospace",
-};
-
 const SYSTEM_UI: PageFont = {
   value: "system-ui",
   label: "System UI",

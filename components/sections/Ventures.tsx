@@ -390,7 +390,7 @@ export default function Ventures() {
                           className="text-[11px] font-mono tracking-widest text-[#DFC17B] font-bold uppercase"
                           style={{ fontFamily: "'Space Grotesk', sans-serif" }}
                         >
-                          {venture.num} // {venture.tag}
+                          {`${venture.num} // ${venture.tag}`}
                         </span>
                         {venture.isComplete ? (
                           <span className="text-[10px] font-mono font-bold tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
@@ -522,7 +522,7 @@ export default function Ventures() {
               <div className="p-5 pb-2">
                 <div className="flex items-center justify-between mb-2.5">
                   <span className="text-[10px] font-mono text-[#DFC17B] font-bold tracking-wider uppercase">
-                    {venture.num} // {venture.tag}
+                    {`${venture.num} // ${venture.tag}`}
                   </span>
                   {venture.isComplete ? (
                     <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">

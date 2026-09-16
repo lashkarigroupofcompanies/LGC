@@ -224,6 +224,7 @@
       white-space: nowrap;
       transform: translate3d(calc(-50% + var(--mx) * -.12), calc(var(--my) * -.12), 0);
       transition: opacity 700ms ease, filter 700ms ease, transform 900ms var(--ease);
+      -webkit-user-select: none;
       user-select: none;
     }
 
@@ -819,6 +820,7 @@
       border-radius: 32px;
       background: rgba(64, 58, 43, .88);
       box-shadow: 0 16px 32px rgba(26, 20, 12, .2);
+      -webkit-backdrop-filter: blur(12px);
       backdrop-filter: blur(12px);
     }
 
@@ -899,6 +901,7 @@
       transform: translate3d(-50%, -18px, 0) rotate(-45deg);
       transition: opacity 400ms ease, transform 620ms var(--ease), background 220ms ease;
       pointer-events: none;
+      -webkit-backdrop-filter: blur(8px);
       backdrop-filter: blur(8px);
     }
 
@@ -1002,6 +1005,7 @@
       opacity: 0;
       transition: opacity 460ms ease;
       pointer-events: none;
+      -webkit-backdrop-filter: blur(18px);
       backdrop-filter: blur(18px);
     }
 
@@ -1059,6 +1063,7 @@
       transform: translate(-50%, 20px);
       transition: opacity 250ms ease, transform 350ms var(--ease);
       pointer-events: none;
+      -webkit-backdrop-filter: blur(12px);
       backdrop-filter: blur(12px);
     }
 

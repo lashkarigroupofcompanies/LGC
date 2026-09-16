@@ -514,7 +514,7 @@ export default function VentureAdminModal({ isOpen, onClose }: VentureAdminModal
                     className="w-full px-4 py-2.5 rounded-xl bg-[#10030B] border border-[#C9A84C]/40 text-white placeholder-white/25 text-sm font-mono focus:outline-none focus:border-[#FF3366] transition-colors"
                   />
                   <span className="text-[10px] text-[#A89886] font-mono block">
-                    Destination link when visitor clicks the card or "ACCESS VENTURE".
+                    Destination link when visitor clicks the card or &quot;ACCESS VENTURE&quot;.
                   </span>
                 </div>
               </div>

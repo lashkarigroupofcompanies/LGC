@@ -216,6 +216,7 @@
       transform: translate(16px, 18px);
       transition: opacity 120ms ease;
       pointer-events: none;
+      -webkit-backdrop-filter: blur(8px);
       backdrop-filter: blur(8px);
     }
 
@@ -292,6 +293,7 @@
         border-color 180ms ease,
         background 180ms ease,
         transform 180ms var(--ease-out);
+      -webkit-backdrop-filter: blur(8px);
       backdrop-filter: blur(8px);
     }
 
@@ -405,6 +407,7 @@
       transform: translateY(28px);
       transition: opacity 620ms var(--ease-out), transform 620ms var(--ease-out);
       pointer-events: none;
+      -webkit-backdrop-filter: blur(14px);
       backdrop-filter: blur(14px);
     }
 
@@ -978,6 +981,7 @@
     .close-button {
       border: 0;
       background: transparent;
+      -webkit-backdrop-filter: none;
       backdrop-filter: none;
       transition: color 420ms var(--ease-out), border-color 420ms var(--ease-out);
     }
@@ -1027,6 +1031,7 @@
       background: transparent;
       box-shadow: none;
       transform: translateY(calc(-50% + 18px));
+      -webkit-backdrop-filter: none;
       backdrop-filter: none;
       color: var(--ink);
       transition:

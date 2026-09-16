@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import SectionAtmosphere from "@/components/ecosystem/SectionAtmosphere";
 import { getStoredStats, subscribeVenturesStore, INITIAL_STATS } from "@/lib/venturesStore";
@@ -139,7 +139,7 @@ export default function About() {
                   "0 1px 14px rgba(255, 255, 255, 0.95), 0 0 24px rgba(255, 255, 255, 0.85)",
               }}
             >
-              "In 2026, a collective of{" "}
+              &ldquo;In 2026, a collective of{" "}
               <span className="font-semibold text-[#581822] underline decoration-[#C9A84C] decoration-[1.5px] underline-offset-4">
                 six young minds
               </span>{" "}
@@ -155,7 +155,7 @@ export default function About() {
               >
                 movement
               </span>
-              ."
+              .&rdquo;
             </p>
 
             <div className="mt-6 flex items-center gap-4">
