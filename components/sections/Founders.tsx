@@ -78,7 +78,7 @@ function RectangularPortrait({
       <div className="w-full h-full rounded-[10px] overflow-hidden relative">
         <img
           src={src}
-          alt={name}
+          alt={`Executive Portrait of ${name} — Lashkari Group Leadership`}
           onError={() => setHasError(true)}
           className="w-full h-full object-cover rounded-[10px] transition-transform duration-700 ease-out group-hover:scale-110"
           style={{
@@ -164,67 +164,54 @@ const CO_FOUNDERS = [
 ];
 
 export default function Founders() {
-  // ── THREEUI-STYLE 3D HORIZONTAL-ONLY CARD WAVE ENGINE ───────────────────
-  const [phase, setPhase] = useState(0);
+  // ── HARDWARE-ACCELERATED 3D WAVE ENGINE (AUTO-ADVANCES EVERY 3 SECONDS) ──
+  const [activeIndex, setActiveIndex] = useState(0);
+  const [isPaused, setIsPaused] = useState(false);
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
-  const [isHovered, setIsHovered] = useState(false);
 
+  const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
-  const targetPhaseRef = useRef(0);
-  const currentPhaseRef = useRef(0);
-  const tiltTargetRef = useRef({ x: 0, y: 0 });
-  const tiltCurrentRef = useRef({ x: 0, y: 0 });
-  const animationFrameRef = useRef<number | null>(null);
-  const isDraggingRef = useRef(false);
-  const dragStartXRef = useRef(0);
-  const dragStartPhaseRef = useRef(0);
+  const dragStartX = useRef<number | null>(null);
+  const dragDistance = useRef<number>(0);
+  const isDragging = useRef(false);
 
   const count = CO_FOUNDERS.length;
 
-  const wrappedDelta = useCallback((index: number, currentPhase: number) => {
-    let delta = index - currentPhase;
+  // Auto-advance cards smoothly right-to-left every 3.0 seconds
+  useEffect(() => {
+    if (isPaused) return;
+    const timer = setInterval(() => {
+      setActiveIndex((prev) => (prev + 1) % count);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, [isPaused, count]);
+
+  const wrappedDelta = useCallback((index: number, active: number) => {
+    let delta = index - active;
     while (delta > count / 2) delta -= count;
     while (delta < -count / 2) delta += count;
     return delta;
   }, [count]);
 
-  // Smooth continuous animation loop without vertical scroll interception
-  useEffect(() => {
-    let lastTime = performance.now();
+  // Manual Step buttons
+  const stepPrev = useCallback(() => {
+    setActiveIndex((prev) => (prev - 1 + count) % count);
+    setIsPaused(true);
+    setTimeout(() => setIsPaused(false), 4000);
+  }, [count]);
 
-    const loop = (now: number) => {
-      const dt = Math.min(32, now - lastTime);
-      lastTime = now;
-
-      // Slow elegant auto-drift when not actively dragging or hovering
-      if (!isHovered && !isDraggingRef.current) {
-        targetPhaseRef.current += (dt / 1000) * 0.22; // very slow, luxurious drift
-      }
-
-      // Smooth easing toward target phase
-      const ease = 1 - Math.pow(0.001, dt / 1000);
-      currentPhaseRef.current += (targetPhaseRef.current - currentPhaseRef.current) * ease;
-      setPhase(currentPhaseRef.current);
-
-      // Smooth 3D tilt interpolation
-      tiltCurrentRef.current.x += (tiltTargetRef.current.x - tiltCurrentRef.current.x) * ease * 0.8;
-      tiltCurrentRef.current.y += (tiltTargetRef.current.y - tiltCurrentRef.current.y) * ease * 0.8;
-      setTilt({ x: tiltCurrentRef.current.x, y: tiltCurrentRef.current.y });
-
-      animationFrameRef.current = requestAnimationFrame(loop);
-    };
-
-    animationFrameRef.current = requestAnimationFrame(loop);
-    return () => {
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
-    };
-  }, [isHovered]);
+  const stepNext = useCallback(() => {
+    setActiveIndex((prev) => (prev + 1) % count);
+    setIsPaused(true);
+    setTimeout(() => setIsPaused(false), 4000);
+  }, [count]);
 
   // Horizontal Pointer Drag & 3D Tilt Tracking (Zero vertical scroll-trapping)
   const handlePointerDown = (e: React.PointerEvent) => {
-    isDraggingRef.current = true;
-    dragStartXRef.current = e.clientX;
-    dragStartPhaseRef.current = targetPhaseRef.current;
+    setIsPaused(true);
+    dragStartX.current = e.clientX;
+    dragDistance.current = 0;
+    isDragging.current = true;
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
@@ -232,38 +219,34 @@ export default function Founders() {
       const rect = stageRef.current.getBoundingClientRect();
       const nx = Math.max(-1, Math.min(1, ((e.clientX - rect.left) / rect.width - 0.5) * 2));
       const ny = Math.max(-1, Math.min(1, ((e.clientY - rect.top) / rect.height - 0.5) * 2));
-      tiltTargetRef.current = { x: nx, y: ny };
+      setTilt({ x: nx, y: ny });
     }
 
-    if (!isDraggingRef.current) return;
-    const dx = e.clientX - dragStartXRef.current;
-    // Map pixels to card phase
-    targetPhaseRef.current = dragStartPhaseRef.current - dx / 240;
+    if (!isDragging.current || dragStartX.current === null) return;
+    dragDistance.current = e.clientX - dragStartX.current;
   };
 
   const handlePointerUp = () => {
-    isDraggingRef.current = false;
+    if (!isDragging.current) return;
+    isDragging.current = false;
+    if (dragDistance.current < -35) {
+      stepNext();
+    } else if (dragDistance.current > 35) {
+      stepPrev();
+    }
+    dragStartX.current = null;
+    dragDistance.current = 0;
+    setTimeout(() => setIsPaused(false), 3500);
   };
-
-  // Step buttons
-  const stepPrev = () => {
-    targetPhaseRef.current = Math.round(targetPhaseRef.current) - 1;
-  };
-
-  const stepNext = () => {
-    targetPhaseRef.current = Math.round(targetPhaseRef.current) + 1;
-  };
-
-  const activeIndex = (((Math.round(phase) % count) + count) % count);
 
   return (
     <section
       id="founders"
+      ref={sectionRef}
       className="relative w-full bg-transparent text-[#1A1A1A] overflow-hidden scroll-mt-[90px] pt-24 pb-24"
     >
-      {/* ── ATMOSPHERE: VELVET ROSE & AMBER GOLD BUTTERFLIES WITH MANY SAKURA PETALS ── */}
-      <SectionAtmosphere butterflyType="rose" butterflyCount={3} petalCount={34} className="z-[2]" />
-      <SectionAtmosphere butterflyType="gold" butterflyCount={2} petalCount={20} className="z-[2]" />
+      {/* ── ATMOSPHERE: OPTIMIZED SINGLE VELVET ROSE & AMBER GOLD ATMOSPHERE ── */}
+      <SectionAtmosphere butterflyType="gold" butterflyCount={3} petalCount={34} className="z-[2]" />
 
 
 
@@ -546,11 +529,11 @@ export default function Founders() {
           {/* 3D Wave Stage (Dimensional horizontal wave container with zero scrollbars) */}
           <div
             ref={stageRef}
-            onMouseEnter={() => setIsHovered(true)}
+            onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => {
-              setIsHovered(false);
-              isDraggingRef.current = false;
-              tiltTargetRef.current = { x: 0, y: 0 };
+              setIsPaused(false);
+              isDragging.current = false;
+              setTilt({ x: 0, y: 0 });
             }}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
@@ -583,7 +566,7 @@ export default function Founders() {
               style={{ transformStyle: "preserve-3d" }}
             >
               {CO_FOUNDERS.map((founder, idx) => {
-                const delta = wrappedDelta(idx, phase);
+                const delta = wrappedDelta(idx, activeIndex);
                 const distance = Math.abs(delta);
                 const focus = Math.exp(-Math.pow(distance, 2) * 1.05);
                 const side = Math.max(0, 1 - distance / 4);
@@ -605,22 +588,29 @@ export default function Founders() {
                   <div
                     key={founder.id}
                     onClick={() => {
-                      targetPhaseRef.current = Math.round(targetPhaseRef.current) + delta;
+                      if (!isCurrent) {
+                        setActiveIndex(idx);
+                        setIsPaused(true);
+                        setTimeout(() => setIsPaused(false), 4000);
+                      }
                     }}
                     className={cn(
-                      "absolute top-1/2 left-1/2 w-[250px] sm:w-[280px] h-[450px] sm:h-[480px] rounded-[24px] p-4 sm:p-5 border transition-all duration-300 flex flex-col justify-between cursor-pointer overflow-hidden",
+                      "absolute top-1/2 left-1/2 w-[250px] sm:w-[280px] h-[450px] sm:h-[480px] rounded-[24px] p-4 sm:p-5 border transition-colors duration-300 flex flex-col justify-between cursor-pointer overflow-hidden select-none",
                       isCurrent
                         ? "border-[#FF3366] shadow-[0_25px_65px_rgba(20,2,12,0.9),0_0_45px_rgba(230,25,80,0.6),0_0_20px_rgba(201,168,76,0.4),inset_0_1px_1px_rgba(255,200,220,0.3)]"
                         : "border-[#FF3366]/35 shadow-[0_14px_35px_rgba(10,1,6,0.7),0_0_15px_rgba(200,20,65,0.12)] hover:border-[#FF3366]/60"
                     )}
                     style={{
-                      transform: `translate(-50%, -50%) translate3d(${x.toFixed(2)}px, ${y.toFixed(2)}px, ${z.toFixed(2)}px) rotateX(${rotateX.toFixed(2)}deg) rotateY(${rotateY.toFixed(2)}deg) rotateZ(${rotateZ.toFixed(2)}deg) scale(${scale.toFixed(4)})`,
-                      opacity: opacity.toFixed(3),
-                      zIndex: Math.round(1000 - distance * 100),
+                      transform: `translate(-50%, -50%) translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, ${z.toFixed(1)}px) rotateX(${rotateX.toFixed(1)}deg) rotateY(${rotateY.toFixed(1)}deg) rotateZ(${rotateZ.toFixed(1)}deg) scale(${scale.toFixed(3)})`,
+                      opacity: opacity.toFixed(2),
+                      zIndex: Math.round(100 - distance * 10),
                       background: isCurrent
                         ? "linear-gradient(155deg, #4F0A29 0%, #30061A 50%, #16020C 100%)"
                         : "linear-gradient(155deg, #32061A 0%, #1E0310 55%, #0D0107 100%)",
                       transformStyle: "preserve-3d",
+                      willChange: "transform, opacity",
+                      transition:
+                        "transform 650ms cubic-bezier(0.16, 1, 0.3, 1), opacity 650ms cubic-bezier(0.16, 1, 0.3, 1)",
                     }}
                   >
                     {/* Top Cherry Red & Gold Accent Rim */}
@@ -711,7 +701,9 @@ export default function Founders() {
               <button
                 key={i}
                 onClick={() => {
-                  targetPhaseRef.current = Math.round(targetPhaseRef.current) + wrappedDelta(i, phase);
+                  setActiveIndex(i);
+                  setIsPaused(true);
+                  setTimeout(() => setIsPaused(false), 4000);
                 }}
                 className={cn(
                   "h-1.5 rounded-full transition-all duration-300 cursor-pointer",

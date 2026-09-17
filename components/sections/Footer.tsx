@@ -17,6 +17,7 @@ export default function Footer() {
   });
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [rateLimitNotice, setRateLimitNotice] = useState<string | null>(null);
 
   useEffect(() => {
     setPortals(getStoredVentures());
@@ -27,7 +28,42 @@ export default function Footer() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
+
+    // Rate Limiting: Max 3 submissions per 10 minutes
+    const now = Date.now();
+    let timestamps: number[] = [];
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("lgc_contact_rate_limit");
+      if (stored) {
+        try {
+          timestamps = JSON.parse(stored);
+        } catch {
+          timestamps = [];
+        }
+      }
+    }
+
+    // Filter to last 10 minutes (600,000 ms)
+    timestamps = timestamps.filter((t) => now - t < 600000);
+
+    if (timestamps.length >= 3) {
+      const oldest = timestamps[0];
+      const waitMins = Math.ceil((600000 - (now - oldest)) / 60000);
+      setRateLimitNotice(
+        `Rate limit active: Maximum 3 transmissions per 10 minutes. Please wait ${waitMins} minute${waitMins > 1 ? "s" : ""} before sending another inquiry.`
+      );
+      return;
+    }
+
     setSubmitting(true);
+    setRateLimitNotice(null);
+
+    timestamps.push(now);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("lgc_contact_rate_limit", JSON.stringify(timestamps));
+    }
+
     setTimeout(() => {
       setSubmitting(false);
       setSubmitted(true);
@@ -45,9 +81,8 @@ export default function Footer() {
         id="contact"
         className="relative w-full pt-28 pb-28 text-[#1A1A1A] scroll-mt-[90px]"
       >
-        {/* Atmosphere: Velvet Rose & Blue Morpho Butterflies with Many Floating Blossoms */}
-        <SectionAtmosphere butterflyType="rose" butterflyCount={3} petalCount={32} className="z-[2]" />
-        <SectionAtmosphere butterflyType="blue" butterflyCount={2} petalCount={18} className="z-[2]" />
+        {/* Atmosphere: Optimized Single Canvas Atmosphere */}
+        <SectionAtmosphere butterflyType="rose" butterflyCount={3} petalCount={34} className="z-[2]" />
 
         {/* Ambient Forest & Warm Gold Lighting */}
         <div
@@ -195,6 +230,12 @@ export default function Footer() {
                     />
                   </div>
 
+                  {rateLimitNotice && (
+                    <div className="p-3.5 rounded-xl border border-amber-500/40 bg-amber-500/15 text-amber-200 text-xs font-mono">
+                      {rateLimitNotice}
+                    </div>
+                  )}
+
                   <button
                     type="submit"
                     disabled={submitting}
@@ -209,6 +250,24 @@ export default function Footer() {
                       </>
                     )}
                   </button>
+
+                  {/* Alternate Institutional CTAs */}
+                  <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
+                    <a
+                      href="mailto:lashkarigroupofcompanies@gmail.com?subject=LGC%20Executive%20Dossier%20Request"
+                      className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-[#C9A84C]/35 bg-white/5 hover:bg-[#C9A84C]/15 text-[#DFC17B] text-[11px] font-mono tracking-wider text-center transition-all flex items-center justify-center space-x-1.5"
+                    >
+                      <span>REQUEST GROUP DOSSIER</span>
+                      <ArrowUpRight className="w-3.5 h-3.5" />
+                    </a>
+                    <a
+                      href="#ventures"
+                      className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-white/15 bg-white/5 hover:bg-white/10 text-white/80 hover:text-white text-[11px] font-mono tracking-wider text-center transition-all flex items-center justify-center space-x-1.5"
+                    >
+                      <span>EXPLORE 6 VENTURES</span>
+                      <span>→</span>
+                    </a>
+                  </div>
                 </form>
               )}
             </div>
@@ -298,7 +357,7 @@ export default function Footer() {
         >
           <img
             src="/images/sakura-branch-intermediate.webp"
-            alt="Finale Rising Sakura Branch"
+            alt="Lashkari Group Imperial Sakura Botanical Art Finale"
             className="w-full h-auto object-contain pointer-events-none"
             style={{
               transform: "rotate(-8deg) scaleY(-1)",

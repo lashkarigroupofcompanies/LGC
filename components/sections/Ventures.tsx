@@ -28,12 +28,12 @@ export default function Ventures() {
 
   const totalCount = venturesList.length || 1;
 
-  // Auto-advance cards right-to-left every 2.8 seconds
+  // Auto-advance cards right-to-left every 3.0 seconds
   useEffect(() => {
     if (isPaused) return;
     const timer = setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % totalCount);
-    }, 2800);
+    }, 3000);
     return () => clearInterval(timer);
   }, [isPaused, totalCount]);
 
@@ -89,51 +89,55 @@ export default function Ventures() {
     setTimeout(() => setIsPaused(false), 3000);
   };
 
-  // 3-Card Carousel Position: Middle active, Left and Right faded
+  // 3-Card Carousel Position: Middle active, Left and Right faded (Hardware-accelerated GPU Composited)
   const getCardPositionStyle = (index: number) => {
     const diff = (index - activeIndex + totalCount) % totalCount;
 
     // Center Active Card
     if (diff === 0) {
       return {
-        transform: "translateX(0px) scale(1)",
+        transform: "translate3d(0px, 0, 0) scale(1)",
         opacity: 1,
         zIndex: 30,
         pointerEvents: "auto" as const,
-        filter: "drop-shadow(0 20px 45px rgba(24,12,20,0.5))",
+        boxShadow: "0 24px 60px rgba(24, 12, 20, 0.65), 0 0 35px rgba(201, 168, 76, 0.35)",
+        visibility: "visible" as const,
       };
     }
 
     // Right Card (Next in queue — Faded on right)
     if (diff === 1) {
       return {
-        transform: "translateX(275px) scale(0.85)",
-        opacity: 0.38,
+        transform: "translate3d(280px, 0, 0) scale(0.86)",
+        opacity: 0.45,
         zIndex: 10,
         pointerEvents: "auto" as const,
-        filter: "blur(0.5px)",
+        boxShadow: "0 14px 35px rgba(0, 0, 0, 0.35)",
+        visibility: "visible" as const,
       };
     }
 
     // Left Card (Previous — Faded on left)
     if (diff === totalCount - 1) {
       return {
-        transform: "translateX(-275px) scale(0.85)",
-        opacity: 0.38,
+        transform: "translate3d(-280px, 0, 0) scale(0.86)",
+        opacity: 0.45,
         zIndex: 10,
         pointerEvents: "auto" as const,
-        filter: "blur(0.5px)",
+        boxShadow: "0 14px 35px rgba(0, 0, 0, 0.35)",
+        visibility: "visible" as const,
       };
     }
 
     // Other cards (Hidden off-stage)
     const isAhead = diff < totalCount / 2;
     return {
-      transform: `translateX(${isAhead ? 420 : -420}px) scale(0.72)`,
+      transform: `translate3d(${isAhead ? 460 : -460}px, 0, 0) scale(0.7)`,
       opacity: 0,
       zIndex: 0,
       pointerEvents: "none" as const,
-      filter: "blur(2px)",
+      boxShadow: "none",
+      visibility: "hidden" as const,
     };
   };
 
@@ -143,9 +147,8 @@ export default function Ventures() {
       ref={sectionRef}
       className="relative w-full bg-transparent text-[#1A1A1A] overflow-hidden scroll-mt-[60px]"
     >
-      {/* ── VENTURES ATMOSPHERE: VELVET ROSE & IMPERIAL GOLD BUTTERFLIES WITH MANY SAKURA PETALS ── */}
-      <SectionAtmosphere butterflyType="rose" butterflyCount={3} petalCount={32} className="z-[3]" />
-      <SectionAtmosphere butterflyType="gold" butterflyCount={2} petalCount={18} className="z-[3]" />
+      {/* ── VENTURES ATMOSPHERE: OPTIMIZED SINGLE ATMOSPHERE CANVAS ── */}
+      <SectionAtmosphere butterflyType="rose" butterflyCount={3} petalCount={34} className="z-[3]" />
 
       {/* ══════════════════════════════════════════════════════════════════════
           DESKTOP 3-CARD CAROUSEL STAGE (>= 1024px)
@@ -178,9 +181,6 @@ export default function Ventures() {
             }}
           />
         </div>
-
-        {/* VENTURES-SPECIFIC ATMOSPHERE: VELVET ROSE SWALLOWTAIL BUTTERFLIES & SAKURA PETALS */}
-        <SectionAtmosphere butterflyType="rose" butterflyCount={3} petalCount={16} className="z-[2]" />
 
         {/* Left Column: Fixed Institutional Manifesto & Japanese Telemetry Plinth (PROTECTED z-30) */}
         <div className="w-[38%] max-w-[430px] flex flex-col justify-center space-y-6 select-none relative z-30 pointer-events-auto">
@@ -344,7 +344,7 @@ export default function Ventures() {
                       setTimeout(() => setIsPaused(false), 3500);
                     }
                   }}
-                  className="absolute left-0 top-0 will-change-transform select-none transition-all duration-500 ease-out"
+                  className="absolute left-0 top-0 select-none cursor-pointer"
                   style={{
                     width: "350px",
                     height: "490px",
@@ -352,15 +352,19 @@ export default function Ventures() {
                     opacity: posStyle.opacity,
                     zIndex: posStyle.zIndex,
                     pointerEvents: posStyle.pointerEvents,
-                    filter: posStyle.filter,
+                    boxShadow: posStyle.boxShadow,
+                    visibility: posStyle.visibility,
+                    willChange: "transform, opacity",
+                    transition:
+                      "transform 650ms cubic-bezier(0.16, 1, 0.3, 1), opacity 650ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 650ms ease-out",
                   }}
                 >
                   {/* Japanese 3D Paper Plinth Card in Solid Black & Maroon */}
                   <div
-                    className={`relative w-full h-full rounded-[22px] overflow-hidden flex flex-col justify-between transition-all duration-300 ${
+                    className={`relative w-full h-full rounded-[22px] overflow-hidden flex flex-col justify-between transition-colors duration-300 ${
                       isSelected
-                        ? "shadow-[0_24px_60px_rgba(74,18,26,0.55),0_0_35px_rgba(201,168,76,0.3)] ring-1.5 ring-[#C9A84C]"
-                        : "shadow-[0_16px_36px_rgba(0,0,0,0.35)] ring-1 ring-[#C9A84C]/35 cursor-pointer hover:opacity-60"
+                        ? "ring-1.5 ring-[#C9A84C]"
+                        : "ring-1 ring-[#C9A84C]/35 hover:ring-[#C9A84C]/60"
                     }`}
                     style={{
                       background:
@@ -407,7 +411,7 @@ export default function Ventures() {
                       <div className="relative w-full h-[190px] rounded-xl overflow-hidden mb-4 bg-black/60 border border-[#C9A84C]/35">
                         <img
                           src={venture.image}
-                          alt={venture.name}
+                          alt={`${venture.name} — ${venture.tag} Venture by Lashkari Group`}
                           className="w-full h-full object-cover object-center"
                           loading="lazy"
                         />
@@ -538,8 +542,9 @@ export default function Ventures() {
                 <div className="relative w-full h-[135px] rounded-xl overflow-hidden mb-3 bg-black/60 border border-[#C9A84C]/35">
                   <img
                     src={venture.image}
-                    alt={venture.name}
+                    alt={`${venture.name} — ${venture.tag} Venture by Lashkari Group`}
                     className="w-full h-full object-cover"
+                    loading="lazy"
                   />
                   <div className="absolute bottom-2 left-2 text-[9px] font-mono text-[#DFC17B] bg-black/80 px-2 py-0.5 rounded border border-[#C9A84C]/40">
                     {venture.subdomain}

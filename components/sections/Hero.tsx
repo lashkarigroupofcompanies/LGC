@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SectionAtmosphere from "@/components/ecosystem/SectionAtmosphere";
 
@@ -30,7 +31,8 @@ interface SpecItemState {
 }
 
 export default function Hero() {
-  const [activeSection, setActiveSection] = React.useState("HOME");
+  const [activeSection, setActiveSection] = useState("HOME");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -427,9 +429,8 @@ export default function Hero() {
       ref={heroRef}
       className="relative w-full h-screen bg-transparent text-[#1A1A1A] select-none"
     >
-      {/* ── ATMOSPHERE: BLUE MORPHO & IMPERIAL GOLD BUTTERFLIES WITH MANY SAKURA PETALS ── */}
-      <SectionAtmosphere butterflyType="blue" butterflyCount={3} petalCount={32} className="z-[3]" />
-      <SectionAtmosphere butterflyType="gold" butterflyCount={2} petalCount={18} className="z-[3]" />
+      {/* ── ATMOSPHERE: OPTIMIZED SINGLE CANVAS ATMOSPHERE ── */}
+      <SectionAtmosphere butterflyType="blue" butterflyCount={3} petalCount={36} className="z-[3]" />
 
       {/* NAVBAR — fixed top, z-index 100 */}
       <header className="fixed top-0 left-0 right-0 z-[100] w-full px-[4vw] md:px-[5vw] lg:px-[72px] py-[22px] flex items-center justify-between pointer-events-auto bg-transparent">
@@ -478,13 +479,13 @@ export default function Hero() {
           ))}
         </nav>
 
-        {/* Right Action Block */}
-        <div className="flex items-center">
+        {/* Right Action Block + Mobile Menu Toggle */}
+        <div className="flex items-center space-x-3">
           <a
             ref={navRightRef}
             href="#contact"
             data-spec
-            className="sylva-dock-item !border-[rgba(201,168,76,0.3)] !bg-[rgba(34,40,31,0.88)] !text-[#C9A84C] hover:!text-[#FFFFFF] hover:!border-[rgba(255,255,255,0.4)] shadow-md group"
+            className="hidden sm:flex sylva-dock-item !border-[rgba(201,168,76,0.3)] !bg-[rgba(34,40,31,0.88)] !text-[#C9A84C] hover:!text-[#FFFFFF] hover:!border-[rgba(255,255,255,0.4)] shadow-md group"
             style={{ height: "42px", padding: "0 18px", borderRadius: "12px" }}
           >
             <span className="text-[11px] font-medium tracking-[0.2em]">
@@ -494,8 +495,74 @@ export default function Hero() {
               →
             </span>
           </a>
+
+          {/* Mobile Hamburger Toggle Button (>= 48px touch target) */}
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
+            className="md:hidden flex items-center justify-center w-12 h-12 rounded-xl border border-[#C9A84C]/40 bg-[rgba(34,40,31,0.9)] text-[#C9A84C] hover:text-white transition-colors focus:outline-none"
+          >
+            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
         </div>
       </header>
+
+      {/* Mobile Luxury Navigation Drawer */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 z-[95] md:hidden bg-[#12050E]/95 backdrop-blur-2xl flex flex-col justify-between p-8 pt-28 animate-in fade-in duration-200">
+          <div className="flex flex-col space-y-6">
+            <span className="text-[10px] font-mono tracking-[0.4em] uppercase text-[#C9A84C]">
+              {"// ARCHITECTURE OF VENTURES"}
+            </span>
+            {[
+              { label: "HOME", href: "#", subtitle: "Genesis & Living Horizon" },
+              { label: "ABOUT", href: "#about", subtitle: "Sovereign Holding Philosophy" },
+              { label: "VENTURES", href: "#ventures", subtitle: "Active Portfolio Companies" },
+              { label: "FOUNDERS", href: "#founders", subtitle: "Keynote & Executive Council" },
+              { label: "CONTACT", href: "#contact", subtitle: "Institutional Transmissions" },
+            ].map((item) => (
+              <a
+                key={item.label}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className="group flex flex-col py-2 border-b border-white/10"
+              >
+                <div className="flex items-center justify-between">
+                  <span
+                    className={cn(
+                      "text-2xl font-serif tracking-wider transition-colors",
+                      activeSection === item.label ? "text-[#C9A84C] italic font-semibold" : "text-white/85 group-hover:text-[#C9A84C]"
+                    )}
+                    style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                  >
+                    {item.label}
+                  </span>
+                  <span className="text-xs font-mono text-[#C9A84C] opacity-0 group-hover:opacity-100 transition-opacity">
+                    →
+                  </span>
+                </div>
+                <span className="text-[11px] font-mono text-white/40 mt-0.5 tracking-wider">
+                  {item.subtitle}
+                </span>
+              </a>
+            ))}
+          </div>
+
+          <div className="pt-6 border-t border-[#C9A84C]/25 flex flex-col space-y-3">
+            <a
+              href="#contact"
+              onClick={() => setMobileMenuOpen(false)}
+              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#C9A84C] to-[#DFC17B] text-[#120A0E] text-center text-[11px] font-mono font-bold tracking-widest uppercase shadow-[0_0_20px_rgba(201,168,76,0.3)]"
+            >
+              INITIATE TRANSMISSION →
+            </a>
+            <p className="text-[10px] font-mono text-center text-white/40 tracking-wider">
+              EST. 2026 // LASHKARI GROUP OF COMPANIES
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Real Ready-Made Sakura Branch anchored to the TOP-LEFT corner — Grand Scale */}
       <div
@@ -508,7 +575,7 @@ export default function Hero() {
       >
         <img
           src="/images/sakura-branch.webp"
-          alt="Sakura Branch"
+          alt="Lashkari Group Sakura Botanical Art"
           className="w-full h-auto object-contain pointer-events-none opacity-95"
           style={{
             transform: "scaleY(-1) rotate(-3deg)",
@@ -533,12 +600,17 @@ export default function Hero() {
       {/* CONTENT CONTAINER — SHIFTED TOWARDS LEFT ALIGNED WITH NAVBAR (pl-[4vw] md:pl-[5vw] lg:pl-[72px]) */}
       <div className="relative w-full h-full z-20 pointer-events-auto max-w-[1540px] pl-[4vw] md:pl-[5vw] lg:pl-[72px] pr-[4vw] md:pr-[5vw] grid grid-cols-1 lg:grid-cols-[1.1fr_1fr] gap-10 lg:gap-16 items-center">
         {/* LEFT COLUMN — TYPOGRAPHY */}
-        <div className="relative h-screen bg-transparent flex flex-col justify-center pt-[50px] md:pt-[70px] pointer-events-auto">
+        <div className="relative min-h-[100dvh] bg-transparent flex flex-col justify-center pt-[50px] md:pt-[70px] pointer-events-auto">
           <div className="relative z-10 select-none">
-            <div className="overflow-hidden block leading-[0.88] pr-6">
-              <span
-                ref={line1Ref}
-                className="block font-heading font-extrabold italic text-[clamp(48px,5.8vw,100px)] text-[#C9A84C] tracking-[-0.02em] leading-[0.88]"
+            <h1 className="m-0 p-0">
+              <span className="sr-only">
+                Lashkari Group of Companies — Ventures Without Limits
+              </span>
+
+              <div className="overflow-hidden block leading-[0.88] pr-6" aria-hidden="true">
+                <span
+                  ref={line1Ref}
+                  className="block font-heading font-extrabold italic text-[clamp(44px,5.8vw,100px)] text-[#C9A84C] tracking-[-0.02em] leading-[0.88]"
                 style={{
                   fontFamily: "'Cormorant Garamond', serif",
                   textShadow:
@@ -549,10 +621,10 @@ export default function Hero() {
               </span>
             </div>
 
-            <div className="overflow-hidden block leading-[0.88] pr-6">
+            <div className="overflow-hidden block leading-[0.88] pr-6" aria-hidden="true">
               <span
                 ref={line2Ref}
-                className="block font-heading font-extrabold italic text-[clamp(48px,5.8vw,100px)] text-[#C9A84C] tracking-[-0.02em] leading-[0.88]"
+                className="block font-heading font-extrabold italic text-[clamp(44px,5.8vw,100px)] text-[#C9A84C] tracking-[-0.02em] leading-[0.88]"
                 style={{
                   fontFamily: "'Cormorant Garamond', serif",
                   textShadow:
@@ -563,10 +635,10 @@ export default function Hero() {
               </span>
             </div>
 
-            <div className="overflow-hidden block leading-[0.88] pr-6">
+            <div className="overflow-hidden block leading-[0.88] pr-6" aria-hidden="true">
               <span
                 ref={line3Ref}
-                className="block font-heading font-extrabold italic text-[clamp(48px,5.8vw,100px)] text-[#C9A84C] tracking-[-0.02em] leading-[0.88]"
+                className="block font-heading font-extrabold italic text-[clamp(44px,5.8vw,100px)] text-[#C9A84C] tracking-[-0.02em] leading-[0.88]"
                 style={{
                   fontFamily: "'Cormorant Garamond', serif",
                   textShadow:
@@ -576,6 +648,7 @@ export default function Hero() {
                 LIMITS.
               </span>
             </div>
+          </h1>
 
             <div
               ref={ruleRef}
@@ -655,11 +728,6 @@ export default function Hero() {
         {/* RIGHT COLUMN — Dedicated open space for 3D green branch */}
         <div className="relative h-screen bg-transparent pointer-events-none hidden lg:block" />
       </div>
-
-      {/* HERO SECTION ATMOSPHERE: ELECTRIC BLUE MORPHO BUTTERFLIES & SAKURA PETALS */}
-      <SectionAtmosphere butterflyType="blue" butterflyCount={2} petalCount={16} className="z-[3]" />
-
-
 
       {/* BOTTOM SCROLL INDICATOR */}
       <div className="absolute bottom-[28px] left-0 right-0 z-[30] px-[6vw] flex justify-between items-end pointer-events-none">

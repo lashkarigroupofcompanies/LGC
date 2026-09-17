@@ -1,0 +1,44 @@
+# Lashkari Group of Companies (LGC) — Sovereign Venture Conglomerate
+> Where Ideas Become Industries. Global parent conglomerate managing high-growth technology, healthcare, AI, mobility, and visionary market ventures.
+
+## Institutional Overview
+- Legal Entity: Lashkari Group of Companies (LGC)
+- Established: 2026
+- Global Headquarter Nodes: Ahmedabad, Mumbai, Decentralized Cloud Nodes
+- Official Website: https://lashkarigroup.online
+- Executive Contact: lashkarigroupofcompanies@gmail.com
+- Ethos: People First · Build Different · Think Empire
+
+## Core Venture Ecosystem (Portfolio Companies)
+1. PEROIX (Web & Digital Presence)
+   - Domain: https://peroix.lashkarigroup.online
+   - Focus: High-conversion digital presence, elite clinic/doctor portals, and modern enterprise software.
+2. VOIDEX (Frontier AI & Autonomous Intelligence)
+   - Domain: https://voidex.lashkarigroup.online
+   - Focus: Custom generative models, autonomous agent fleets, NATSU neural engines, and sovereign AI infrastructure.
+3. MEETRIX (Creator & Executive Matchmaking)
+   - Domain: https://meetrix.lashkarigroup.online
+   - Focus: Intelligent matchmaking platforms connecting visionaries, venture leaders, and creator communities.
+4. FOODTRAF (Subscription Dining & Micro-Logistics)
+   - Domain: https://foodtraf.lashkarigroup.online
+   - Focus: Urban subscription meal infrastructure, automated kitchen pipelines, and zero-waste dining networks.
+5. LASHKARI MOBILITY (Clean Urban EV Transit)
+   - Domain: https://mobility.lashkarigroup.online
+   - Focus: Sustainable last-mile urban logistics, electric mobility infrastructure, and battery swapping ecosystems.
+6. QUANT AUTOMATION (Proprietary Trading Systems)
+   - Domain: https://quant.lashkarigroup.online
+   - Focus: Low-latency algorithmic execution, statistical arbitrage, and real-time market micro-structure engines.
+
+## Executive Council & Leadership
+- Paras Lashkari: Chief Executive Officer & Ecosystem Architect
+- Devashish Lashkari: Chief Technology Officer & Infrastructure Lead
+- Dr. Aneri Lashkari: Chief Medical Officer & Healthtech Director
+- Dr. Mitu Lashkari: Chief Scientific Officer & Bio-Venture Lead
+- Muskan Lashkari: Chief Operating Officer & Global Talent Partner
+- Payal Lashkari: Chief Strategy Officer & Brand Governance Lead
+
+## Technology & Engineering Standards
+- Framework: Next.js 14 App Router, React 18, TypeScript 5
+- Design Language: Japanese Sovereign Botanical (Sylva Living World, Imperial Gold, Velvet Rose)
+- Security: Strict Transport Security (HSTS), Zero-Trust Architecture, CSP, Content Isolation
+- APIs & Partnerships: institutional inquiries accepted via https://lashkarigroup.online/#contact

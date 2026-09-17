@@ -1,0 +1,38 @@
+name: LGC Production CI/CD Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate-and-build:
+    name: Lint, Typecheck & Production Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js 20 Environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install Project Dependencies
+        run: npm ci
+
+      - name: TypeScript Strict Type Check
+        run: npx tsc --noEmit
+
+      - name: ESLint Code Quality Check
+        run: npm run lint
+
+      - name: Next.js Production Build
+        run: npm run build

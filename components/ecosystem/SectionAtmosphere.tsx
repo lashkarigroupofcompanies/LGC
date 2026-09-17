@@ -50,8 +50,8 @@ export default function SectionAtmosphere({
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
-    let width = (canvas.width = canvas.parentElement?.offsetWidth || window.innerWidth);
-    let height = (canvas.height = canvas.parentElement?.offsetHeight || window.innerHeight);
+    let width = (canvas.width = Math.max(canvas.parentElement?.offsetWidth || window.innerWidth || 300, 1));
+    let height = (canvas.height = Math.max(canvas.parentElement?.offsetHeight || window.innerHeight || 300, 1));
 
     // Initialize sakura blossom petals
     const petals: Petal[] = Array.from({ length: petalCount }).map(() => ({
@@ -84,7 +84,7 @@ export default function SectionAtmosphere({
 
     let animId: number;
     let time = 0;
-    let isVisible = true;
+    let isVisible = false;
 
     const render = () => {
       if (!isVisible) return;
@@ -232,12 +232,10 @@ export default function SectionAtmosphere({
       animId = requestAnimationFrame(render);
     };
 
-    animId = requestAnimationFrame(render);
-
     const handleResize = () => {
       if (!canvas) return;
-      width = canvas.width = canvas.parentElement?.offsetWidth || window.innerWidth;
-      height = canvas.height = canvas.parentElement?.offsetHeight || window.innerHeight;
+      width = canvas.width = Math.max(canvas.parentElement?.offsetWidth || window.innerWidth || 300, 1);
+      height = canvas.height = Math.max(canvas.parentElement?.offsetHeight || window.innerHeight || 300, 1);
     };
 
     window.addEventListener("resize", handleResize);

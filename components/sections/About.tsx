@@ -49,9 +49,8 @@ export default function About() {
     >
       {/* 3D Green Branch lives in the shared parent canvas in page.tsx spanning Hero, About and Ventures */}
 
-      {/* ABOUT ATMOSPHERE: IMPERIAL GOLD & VELVET ROSE BUTTERFLIES WITH MANY SAKURA PETALS */}
-      <SectionAtmosphere butterflyType="gold" butterflyCount={3} petalCount={32} className="z-[3]" />
-      <SectionAtmosphere butterflyType="rose" butterflyCount={2} petalCount={18} className="z-[3]" />
+      {/* ABOUT ATMOSPHERE: OPTIMIZED SINGLE CANVAS ATMOSPHERE */}
+      <SectionAtmosphere butterflyType="gold" butterflyCount={3} petalCount={36} className="z-[3]" />
 
       {/* ── ATMOSPHERIC WASHES: SAKURA BLUSH & FOREST GREEN AURA ── */}
       <div
