@@ -63,6 +63,18 @@ export default function Hero({ isReady = true }: { isReady?: boolean }) {
     return () => observer.disconnect();
   }, []);
 
+  // Prevent background scrolling when mobile menu drawer is open
+  useEffect(() => {
+    if (mobileMenuOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [mobileMenuOpen]);
+
   const navLeftRef = useRef<HTMLDivElement>(null);
   const navDockRef = useRef<HTMLElement>(null);
   const navRightRef = useRef<HTMLAnchorElement>(null);
@@ -454,27 +466,27 @@ export default function Hero({ isReady = true }: { isReady?: boolean }) {
       <SectionAtmosphere butterflyType="blue" butterflyCount={3} petalCount={36} className="z-[3]" />
 
       {/* NAVBAR — fixed top, z-index 100 */}
-      <header className="fixed top-0 left-0 right-0 z-[100] w-full px-[4vw] md:px-[5vw] lg:px-[72px] py-[22px] flex items-center justify-between pointer-events-auto bg-transparent">
+      <header className="fixed top-0 left-0 right-0 z-[100] w-full px-5 sm:px-8 md:px-[5vw] lg:px-[72px] py-4 sm:py-[22px] flex items-center justify-between pointer-events-auto transition-all duration-300">
         {/* Left Block */}
         <div ref={navLeftRef} className="flex flex-col">
           <span
-            className="m-0 font-heading font-semibold text-[22px] leading-none text-[#1A1A1A] tracking-[0.5em]"
+            className="m-0 font-heading font-semibold text-[20px] sm:text-[22px] leading-none text-[#1A1A1A] tracking-[0.5em]"
             style={{ fontFamily: "'Cormorant Garamond', serif" }}
           >
             LGC
           </span>
           <span
-            className="mt-[5px] m-0 font-accent text-[9px] uppercase tracking-[0.4em] text-[#C9A84C]"
+            className="mt-[4px] sm:mt-[5px] m-0 font-accent text-[8.5px] sm:text-[9px] uppercase tracking-[0.4em] text-[#C9A84C]"
             style={{ fontFamily: "'Space Grotesk', sans-serif" }}
           >
             001 / EST. 2026
           </span>
         </div>
 
-        {/* Center Sylva Dock Nav — ALL sections in Golden aesthetic matching HOME */}
+        {/* Center Sylva Dock Nav — visible ONLY on lg screens (>= 1024px) so it NEVER overflows or cuts off on mobile/tablets */}
         <nav
           ref={navDockRef}
-          className="hidden md:flex sylva-dock"
+          className="hidden lg:flex sylva-dock"
           data-spec
           aria-label="Primary"
         >
@@ -506,7 +518,7 @@ export default function Hero({ isReady = true }: { isReady?: boolean }) {
             ref={navRightRef}
             href="#contact"
             data-spec
-            className="hidden sm:flex sylva-dock-item !border-[rgba(201,168,76,0.3)] !bg-[rgba(34,40,31,0.88)] !text-[#C9A84C] hover:!text-[#FFFFFF] hover:!border-[rgba(255,255,255,0.4)] shadow-md group"
+            className="hidden xl:flex sylva-dock-item !border-[rgba(201,168,76,0.3)] !bg-[rgba(34,40,31,0.88)] !text-[#C9A84C] hover:!text-[#FFFFFF] hover:!border-[rgba(255,255,255,0.4)] shadow-md group"
             style={{ height: "42px", padding: "0 18px", borderRadius: "12px" }}
           >
             <span className="text-[11px] font-medium tracking-[0.2em]">
@@ -517,25 +529,62 @@ export default function Hero({ isReady = true }: { isReady?: boolean }) {
             </span>
           </a>
 
-          {/* Mobile Hamburger Toggle Button (>= 48px touch target) */}
+          {/* Mobile Luxury 3-Line Capsule Button */}
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-            className="md:hidden flex items-center justify-center w-12 h-12 rounded-xl border border-[#C9A84C]/40 bg-[rgba(34,40,31,0.9)] text-[#C9A84C] hover:text-white transition-colors focus:outline-none"
+            className="lg:hidden flex items-center gap-2.5 h-10 px-3.5 rounded-full border border-[#C9A84C]/50 bg-[#180C14]/90 backdrop-blur-xl text-[#C9A84C] shadow-[0_4px_20px_rgba(24,12,20,0.45)] hover:border-[#C9A84C] hover:bg-[#280E1A] active:scale-95 transition-all focus:outline-none"
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            <span
+              className="text-[9.5px] font-mono tracking-[0.22em] text-[#DFC17B] uppercase font-bold"
+              style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+            >
+              {mobileMenuOpen ? "CLOSE" : "MENU"}
+            </span>
+
+            {/* Authentic 3-Line Hamburger / Animated Close */}
+            <div className="w-4 h-3 flex flex-col justify-between items-end">
+              <span
+                className={cn(
+                  "h-[1.5px] bg-[#C9A84C] rounded-full transition-all duration-300 origin-right",
+                  mobileMenuOpen ? "w-4 -rotate-45 translate-y-[1px]" : "w-4"
+                )}
+              />
+              <span
+                className={cn(
+                  "h-[1.5px] bg-[#DFC17B] rounded-full transition-all duration-200",
+                  mobileMenuOpen ? "w-0 opacity-0" : "w-2.5"
+                )}
+              />
+              <span
+                className={cn(
+                  "h-[1.5px] bg-[#C9A84C] rounded-full transition-all duration-300 origin-right",
+                  mobileMenuOpen ? "w-4 rotate-45 -translate-y-[1px]" : "w-4"
+                )}
+              />
+            </div>
           </button>
         </div>
       </header>
 
       {/* Mobile Luxury Navigation Drawer */}
       {mobileMenuOpen && (
-        <div className="fixed inset-0 z-[95] md:hidden bg-[#12050E]/95 backdrop-blur-2xl flex flex-col justify-between p-8 pt-28 animate-in fade-in duration-200">
-          <div className="flex flex-col space-y-6">
-            <span className="text-[10px] font-mono tracking-[0.4em] uppercase text-[#C9A84C]">
-              {"// ARCHITECTURE OF VENTURES"}
-            </span>
+        <div className="fixed inset-0 z-[110] lg:hidden bg-[#12050E]/95 backdrop-blur-2xl flex flex-col justify-between p-6 sm:p-8 pt-24 sm:pt-28 animate-in fade-in duration-200">
+          <div className="flex flex-col space-y-5 sm:space-y-6">
+            <div className="flex items-center justify-between pb-3 border-b border-[#C9A84C]/25">
+              <span className="text-[10px] font-mono tracking-[0.4em] uppercase text-[#C9A84C]">
+                {"// ARCHITECTURE OF VENTURES"}
+              </span>
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(false)}
+                aria-label="Close menu"
+                className="w-8 h-8 rounded-full border border-[#C9A84C]/40 bg-[#280E1A] text-[#DFC17B] flex items-center justify-center text-xs hover:border-[#C9A84C]"
+              >
+                ✕
+              </button>
+            </div>
             {[
               { label: "HOME", href: "#", subtitle: "Genesis & Living Horizon" },
               { label: "ABOUT", href: "#about", subtitle: "Sovereign Holding Philosophy" },
