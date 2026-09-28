@@ -275,12 +275,42 @@ export default function Hero({ isReady = true }: { isReady?: boolean }) {
         });
       }
 
-      animId = requestAnimationFrame(loop);
+      if (isHeroVisible) {
+        animId = requestAnimationFrame(loop);
+      } else {
+        isLoopRunning = false;
+      }
     };
+
+    let isHeroVisible = true;
+    let isLoopRunning = true;
+
+    const startDockLoop = () => {
+      if (!isLoopRunning && isHeroVisible) {
+        isLoopRunning = true;
+        lastT = performance.now();
+        animId = requestAnimationFrame(loop);
+      }
+    };
+
+    const heroObserver = new IntersectionObserver(([entry]) => {
+      isHeroVisible = entry.isIntersecting;
+      if (isHeroVisible) {
+        startDockLoop();
+      } else {
+        isLoopRunning = false;
+        cancelAnimationFrame(animId);
+      }
+    });
+
+    if (heroRef.current) {
+      heroObserver.observe(heroRef.current);
+    }
 
     animId = requestAnimationFrame(loop);
 
     return () => {
+      heroObserver.disconnect();
       cancelAnimationFrame(animId);
       window.removeEventListener("pointermove", handlePointerMove);
       document.removeEventListener("mouseleave", handlePointerLeave);

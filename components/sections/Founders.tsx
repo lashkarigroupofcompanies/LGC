@@ -578,6 +578,8 @@ export default function Founders() {
               className="absolute inset-0 transition-transform duration-200 ease-out"
               style={{
                 transformStyle: "preserve-3d",
+                backfaceVisibility: "hidden",
+                WebkitBackfaceVisibility: "hidden",
                 transform: "rotateX(calc(var(--tilt-y, 0) * -3.5deg)) rotateY(calc(var(--tilt-x, 0) * 4.5deg))",
               }}
             >
@@ -612,8 +614,8 @@ export default function Founders() {
                     className={cn(
                       "absolute top-1/2 left-1/2 w-[250px] sm:w-[280px] h-[450px] sm:h-[480px] rounded-[24px] p-4 sm:p-5 border transition-colors duration-300 flex flex-col justify-between cursor-pointer overflow-hidden select-none",
                       isCurrent
-                        ? "border-[#FF3366] shadow-[0_25px_65px_rgba(20,2,12,0.9),0_0_45px_rgba(230,25,80,0.6),0_0_20px_rgba(201,168,76,0.4),inset_0_1px_1px_rgba(255,200,220,0.3)]"
-                        : "border-[#FF3366]/35 shadow-[0_14px_35px_rgba(10,1,6,0.7),0_0_15px_rgba(200,20,65,0.12)] hover:border-[#FF3366]/60"
+                        ? "border-[#FF3366]"
+                        : "border-[#FF3366]/35 hover:border-[#FF3366]/60"
                     )}
                     style={{
                       transform: `translate(-50%, -50%) translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, ${z.toFixed(1)}px) rotateY(${rotateY.toFixed(1)}deg) rotateZ(${rotateZ.toFixed(1)}deg) scale(${scale.toFixed(3)})`,
@@ -623,11 +625,30 @@ export default function Founders() {
                         ? "linear-gradient(155deg, #4F0A29 0%, #30061A 50%, #16020C 100%)"
                         : "linear-gradient(155deg, #32061A 0%, #1E0310 55%, #0D0107 100%)",
                       transformStyle: "preserve-3d",
+                      backfaceVisibility: "hidden",
+                      WebkitBackfaceVisibility: "hidden",
                       willChange: "transform, opacity",
                       transition:
-                        "transform 650ms cubic-bezier(0.16, 1, 0.3, 1), opacity 650ms cubic-bezier(0.16, 1, 0.3, 1)",
+                        "transform 700ms cubic-bezier(0.22, 1, 0.36, 1), opacity 700ms cubic-bezier(0.22, 1, 0.36, 1)",
                     }}
                   >
+                    {/* GPU-composited shadow layers (Zero repaint when active founder changes) */}
+                    <div
+                      className="absolute inset-0 rounded-[24px] pointer-events-none transition-opacity duration-700 ease-out"
+                      style={{
+                        opacity: isCurrent ? 1 : 0,
+                        boxShadow:
+                          "0 25px 65px rgba(20,2,12,0.9), 0 0 45px rgba(230,25,80,0.6), 0 0 20px rgba(201,168,76,0.4), inset 0 1px 1px rgba(255,200,220,0.3)",
+                      }}
+                    />
+                    <div
+                      className="absolute inset-0 rounded-[24px] pointer-events-none transition-opacity duration-700 ease-out"
+                      style={{
+                        opacity: !isCurrent ? 0.75 : 0,
+                        boxShadow:
+                          "0 14px 35px rgba(10,1,6,0.7), 0 0 15px rgba(200,20,65,0.12)",
+                      }}
+                    />
                     {/* Top Cherry Red & Gold Accent Rim */}
                     <div
                       className={cn(

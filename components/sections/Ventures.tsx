@@ -100,7 +100,6 @@ export default function Ventures() {
         opacity: 1,
         zIndex: 30,
         pointerEvents: "auto" as const,
-        boxShadow: "0 24px 60px rgba(24, 12, 20, 0.65), 0 0 35px rgba(201, 168, 76, 0.35)",
         visibility: "visible" as const,
       };
     }
@@ -112,7 +111,6 @@ export default function Ventures() {
         opacity: 0.45,
         zIndex: 10,
         pointerEvents: "auto" as const,
-        boxShadow: "0 14px 35px rgba(0, 0, 0, 0.35)",
         visibility: "visible" as const,
       };
     }
@@ -124,7 +122,6 @@ export default function Ventures() {
         opacity: 0.45,
         zIndex: 10,
         pointerEvents: "auto" as const,
-        boxShadow: "0 14px 35px rgba(0, 0, 0, 0.35)",
         visibility: "visible" as const,
       };
     }
@@ -136,7 +133,6 @@ export default function Ventures() {
       opacity: 0,
       zIndex: 0,
       pointerEvents: "none" as const,
-      boxShadow: "none",
       visibility: "hidden" as const,
     };
   };
@@ -354,13 +350,30 @@ export default function Ventures() {
                     opacity: posStyle.opacity,
                     zIndex: posStyle.zIndex,
                     pointerEvents: posStyle.pointerEvents,
-                    boxShadow: posStyle.boxShadow,
                     visibility: posStyle.visibility,
+                    backfaceVisibility: "hidden",
+                    WebkitBackfaceVisibility: "hidden",
                     willChange: "transform, opacity",
                     transition:
-                      "transform 650ms cubic-bezier(0.16, 1, 0.3, 1), opacity 650ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 650ms ease-out",
+                      "transform 700ms cubic-bezier(0.22, 1, 0.36, 1), opacity 700ms cubic-bezier(0.22, 1, 0.36, 1)",
                   }}
                 >
+                  {/* GPU-composited shadow overlays (Zero repaint on slide) */}
+                  <div
+                    className="absolute inset-0 rounded-[22px] pointer-events-none transition-opacity duration-700 ease-out"
+                    style={{
+                      opacity: isSelected ? 1 : 0,
+                      boxShadow: "0 24px 60px rgba(24, 12, 20, 0.65), 0 0 35px rgba(201, 168, 76, 0.35)",
+                    }}
+                  />
+                  <div
+                    className="absolute inset-0 rounded-[22px] pointer-events-none transition-opacity duration-700 ease-out"
+                    style={{
+                      opacity: !isSelected ? 0.45 : 0,
+                      boxShadow: "0 14px 35px rgba(0, 0, 0, 0.35)",
+                    }}
+                  />
+
                   {/* Japanese 3D Paper Plinth Card in Solid Black & Maroon */}
                   <div
                     className={`relative w-full h-full rounded-[22px] overflow-hidden flex flex-col justify-between transition-colors duration-300 ${

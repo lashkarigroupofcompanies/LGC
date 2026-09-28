@@ -1706,13 +1706,21 @@ window.__seek   = v => { clock = v; drawn = null; };
   var ticking = false, parOn = false;
 
   var isRenderingActive = true;
+  var rafId = null;
+
   window.addEventListener('message', function (e) {
     if (e.data === 'pause') {
       isRenderingActive = false;
+      ticking = false;
+      if (rafId) {
+        cancelAnimationFrame(rafId);
+        rafId = null;
+      }
     } else if (e.data === 'resume') {
       if (!isRenderingActive) {
         isRenderingActive = true;
         lastTick = performance.now();
+        startTick();
       }
     }
   });
@@ -1720,11 +1728,16 @@ window.__seek   = v => { clock = v; drawn = null; };
   /* one rAF for the whole page: it eases the pointer, publishes it, and
      renders the GL scene if there is one */
   function startTick() {
-    if (ticking) return;
+    if (ticking || !isRenderingActive) return;
     ticking = true;
     (function loop() {
-      requestAnimationFrame(loop);
-      if (isRenderingActive) tick();
+      if (!isRenderingActive) {
+        ticking = false;
+        rafId = null;
+        return;
+      }
+      rafId = requestAnimationFrame(loop);
+      tick();
     })();
   }
 

@@ -43,15 +43,16 @@ export default function SmoothScrollProvider({
       gsap.registerPlugin(ScrollTrigger);
     }
 
-    // Initialize Lenis with butter-smooth exponential damping
+    // Initialize Lenis with ultra-fluid physical momentum & GSAP lockstep
     const lenis = new Lenis({
-      duration: 1.15,
+      lerp: 0.088,
+      duration: 1.2,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: true,
-      wheelMultiplier: 0.95,
-      touchMultiplier: 1.4,
+      wheelMultiplier: 1.02,
+      touchMultiplier: 1.2,
       infinite: false,
     });
 
@@ -66,7 +67,7 @@ export default function SmoothScrollProvider({
     };
 
     gsap.ticker.add(tickerCallback);
-    gsap.ticker.lagSmoothing(0);
+    gsap.ticker.lagSmoothing(500, 33);
 
     return () => {
       gsap.ticker.remove(tickerCallback);

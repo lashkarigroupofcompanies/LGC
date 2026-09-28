@@ -154,6 +154,14 @@ function DesktopSegmentItem({ segment }: { segment: SpineSegment }) {
           src="/landing-pages/sylva-branch.html?v=clean"
           title={segment.title}
           loading={segment.id === "genesis" ? "eager" : "lazy"}
+          onLoad={() => {
+            try {
+              iframeRef.current?.contentWindow?.postMessage(
+                isNearViewport ? "resume" : "pause",
+                "*"
+              );
+            } catch {}
+          }}
           className="border-0 pointer-events-none transition-opacity duration-500"
           style={{
             position: "absolute",

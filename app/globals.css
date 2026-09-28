@@ -19,9 +19,18 @@ html.lenis, html.lenis body {
   overflow: hidden;
 }
 
-/* Eliminate pointer-event lag over iframes during scrolling */
-.lenis-scrolling iframe {
+/* Eliminate pointer-event and mouseover overhead during active scrolling */
+.lenis-scrolling iframe,
+.lenis-scrolling canvas {
   pointer-events: none !important;
+}
+
+/* Universal hardware accelerated rendering */
+.gpu-composite {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
 }
 
 @layer base {

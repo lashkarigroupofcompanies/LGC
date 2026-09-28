@@ -86,6 +86,25 @@ export default function SectionAtmosphere({
       heading: 0,
     }));
 
+    // Pre-render a master crisp sakura petal on an off-screen canvas to eliminate GC allocations
+    const petalCanvas = document.createElement("canvas");
+    petalCanvas.width = 32;
+    petalCanvas.height = 32;
+    const pCtx = petalCanvas.getContext("2d");
+    if (pCtx) {
+      const grad = pCtx.createLinearGradient(16, 2, 16, 30);
+      grad.addColorStop(0, "#FFDEE6");
+      grad.addColorStop(0.65, "#F7A8B8");
+      grad.addColorStop(1, "#E58296");
+      pCtx.fillStyle = grad;
+      pCtx.beginPath();
+      pCtx.moveTo(16, 2);
+      pCtx.bezierCurveTo(28, 4, 26, 24, 16, 30);
+      pCtx.bezierCurveTo(6, 24, 4, 4, 16, 2);
+      pCtx.closePath();
+      pCtx.fill();
+    }
+
     let animId: number;
     let time = 0;
     let isVisible = false;
@@ -95,7 +114,7 @@ export default function SectionAtmosphere({
       time += 0.016;
       ctx.clearRect(0, 0, width, height);
 
-      // 1. Render Falling Sakura Petals
+      // 1. Render Falling Sakura Petals (GPU DrawImage Sprite — 0 GC allocations)
       petals.forEach((p) => {
         p.y += p.speedY;
         p.x += Math.sin(time * p.swingSpeed * 60 + p.swingOffset) * p.swingAmp * 0.32 + p.speedX;
@@ -112,19 +131,7 @@ export default function SectionAtmosphere({
         ctx.translate(p.x, p.y);
         ctx.rotate(p.rot);
         ctx.globalAlpha = p.opacity;
-
-        ctx.beginPath();
-        ctx.moveTo(0, -p.size);
-        ctx.bezierCurveTo(p.size * 0.85, -p.size * 0.8, p.size * 0.7, p.size * 0.9, 0, p.size);
-        ctx.bezierCurveTo(-p.size * 0.7, p.size * 0.9, -p.size * 0.85, -p.size * 0.8, 0, -p.size);
-        ctx.closePath();
-
-        const grad = ctx.createLinearGradient(0, -p.size, 0, p.size);
-        grad.addColorStop(0, "#FFDEE6");
-        grad.addColorStop(0.65, "#F7A8B8");
-        grad.addColorStop(1, "#E58296");
-        ctx.fillStyle = grad;
-        ctx.fill();
+        ctx.drawImage(petalCanvas, -p.size, -p.size, p.size * 2, p.size * 2);
         ctx.restore();
       });
 
