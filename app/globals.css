@@ -163,9 +163,15 @@ html.lenis, html.lenis body {
   transition: opacity 0.15s ease-out;
 }
 
+/* Mobile & Tablets: Strictly hide the desktop dock bar on any screen width under 1024px */
+@media (max-width: 1023px) {
+  .sylva-dock {
+    display: none !important;
+  }
+}
+
 .sylva-dock {
   pointer-events: auto;
-  display: flex;
   align-items: flex-start;
   gap: 5px;
   height: 48px;
@@ -183,6 +189,12 @@ html.lenis, html.lenis body {
   isolation: isolate;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+}
+
+@media (min-width: 1024px) {
+  .sylva-dock {
+    display: flex;
+  }
 }
 
 .sylva-dock-item {
