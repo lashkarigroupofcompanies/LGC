@@ -84,13 +84,12 @@ export default function Footer() {
         {/* Atmosphere: Optimized Single Canvas Atmosphere */}
         <SectionAtmosphere butterflyType="rose" butterflyCount={3} petalCount={34} className="z-[2]" />
 
-        {/* Ambient Forest & Warm Gold Lighting */}
+        {/* Ambient Forest & Warm Gold Lighting (GPU-Accelerated) */}
         <div
           className="absolute top-0 right-[-10vw] w-[50vw] h-[550px] rounded-full pointer-events-none z-0"
           style={{
             background:
-              "radial-gradient(ellipse at center, rgba(68, 88, 56, 0.18) 0%, rgba(92, 114, 78, 0.06) 55%, transparent 80%)",
-            filter: "blur(60px)",
+              "radial-gradient(ellipse at center, rgba(68, 88, 56, 0.16) 0%, rgba(92, 114, 78, 0.08) 40%, rgba(92, 114, 78, 0.02) 65%, transparent 85%)",
           }}
         />
 

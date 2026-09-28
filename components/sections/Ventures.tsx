@@ -174,10 +174,12 @@ export default function Ventures() {
             src="/images/sakura-branch-intermediate.webp"
             alt="Ventures Sakura Branch Accent"
             className="w-full h-auto object-contain pointer-events-none"
+            loading="lazy"
+            decoding="async"
             style={{
               transform: "rotate(12deg)",
               transformOrigin: "top left",
-              filter: "drop-shadow(0 16px 36px rgba(0, 0, 0, 0.06))",
+              willChange: "transform",
             }}
           />
         </div>

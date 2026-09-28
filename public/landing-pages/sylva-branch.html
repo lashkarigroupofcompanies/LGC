@@ -1705,12 +1705,27 @@ window.__seek   = v => { clock = v; drawn = null; };
   var lastX = null, lastY = null;
   var ticking = false, parOn = false;
 
+  var isRenderingActive = true;
+  window.addEventListener('message', function (e) {
+    if (e.data === 'pause') {
+      isRenderingActive = false;
+    } else if (e.data === 'resume') {
+      if (!isRenderingActive) {
+        isRenderingActive = true;
+        lastTick = performance.now();
+      }
+    }
+  });
+
   /* one rAF for the whole page: it eases the pointer, publishes it, and
      renders the GL scene if there is one */
   function startTick() {
     if (ticking) return;
     ticking = true;
-    (function loop() { requestAnimationFrame(loop); tick(); })();
+    (function loop() {
+      requestAnimationFrame(loop);
+      if (isRenderingActive) tick();
+    })();
   }
 
   var lastTick = 0;
@@ -3361,7 +3376,7 @@ window.__seek   = v => { clock = v; drawn = null; };
 
     renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: !small });
     renderer.setClearColor(0x000000, 0);
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, small ? 1.6 : 2));
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.30;
     if ('sRGBEncoding' in THREE) renderer.outputEncoding = THREE.sRGBEncoding;

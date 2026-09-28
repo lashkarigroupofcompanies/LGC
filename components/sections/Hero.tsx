@@ -30,43 +30,37 @@ interface SpecItemState {
   focused: boolean;
 }
 
-export default function Hero() {
+export default function Hero({ isReady = true }: { isReady?: boolean }) {
   const [activeSection, setActiveSection] = useState("HOME");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const contactEl = document.getElementById("contact");
-      const foundersEl = document.getElementById("founders");
-      const venturesEl = document.getElementById("ventures");
-      const aboutEl = document.getElementById("about");
+    const sectionIds = ["about", "ventures", "founders", "contact"];
+    const sectionElements = sectionIds
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => Boolean(el));
 
-      const getTop = (el: HTMLElement | null) =>
-        el ? el.getBoundingClientRect().top + window.scrollY : Infinity;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.filter((e) => e.isIntersecting);
+        if (visible.length > 0) {
+          const currentId = visible[visible.length - 1].target.id;
+          const sectionMap: Record<string, string> = {
+            about: "ABOUT",
+            ventures: "VENTURES",
+            founders: "FOUNDERS",
+            contact: "CONTACT",
+          };
+          setActiveSection(sectionMap[currentId] || "HOME");
+        } else if (typeof window !== "undefined" && window.scrollY < window.innerHeight * 0.4) {
+          setActiveSection("HOME");
+        }
+      },
+      { rootMargin: "-20% 0px -40% 0px", threshold: [0, 0.2, 0.5] }
+    );
 
-      const contactTop = getTop(contactEl);
-      const foundersTop = getTop(foundersEl);
-      const venturesTop = getTop(venturesEl);
-      const aboutTop = getTop(aboutEl);
-
-      const threshold = window.innerHeight * 0.38;
-
-      if (scrollY + threshold >= contactTop) {
-        setActiveSection("CONTACT");
-      } else if (scrollY + threshold >= foundersTop) {
-        setActiveSection("FOUNDERS");
-      } else if (scrollY + threshold >= venturesTop) {
-        setActiveSection("VENTURES");
-      } else if (scrollY + threshold >= aboutTop) {
-        setActiveSection("ABOUT");
-      } else {
-        setActiveSection("HOME");
-      }
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    handleScroll();
-    return () => window.removeEventListener("scroll", handleScroll);
+    sectionElements.forEach((el) => observer.observe(el));
+    return () => observer.disconnect();
   }, []);
 
   const navLeftRef = useRef<HTMLDivElement>(null);
@@ -144,8 +138,6 @@ export default function Hero() {
       dockRect = { left: r.left, right: r.right, top: r.top, bottom: r.bottom };
 
       items.forEach((st) => {
-        st.el.style.width = "";
-        st.el.style.height = "";
         st.el.style.transform = "";
         st.el.dataset.near = "false";
         st.v = 0;
@@ -241,12 +233,10 @@ export default function Hero() {
 
             const v = Math.min(Math.max(st.v, 0), 1.08);
             const isMark = st.el.classList.contains("dock-mark");
-            const ew = isMark ? 12 : Math.min(18, st.w * 0.22);
-            const eh = isMark ? 12 : 14;
+            const scaleX = 1 + (isMark ? 0.22 : 0.14) * v;
+            const scaleY = 1 + (isMark ? 0.22 : 0.16) * v;
 
-            st.el.style.width = (st.w + ew * v).toFixed(2) + "px";
-            st.el.style.height = (st.h + eh * v).toFixed(2) + "px";
-            st.el.style.transform = `translateY(${(v * 3.5).toFixed(2)}px)`;
+            st.el.style.transform = `translate3d(0, ${(v * 3.5).toFixed(2)}px, 0) scale3d(${scaleX.toFixed(3)}, ${scaleY.toFixed(3)}, 1)`;
           });
           if (!moving) isDirty = false;
         }
@@ -300,6 +290,7 @@ export default function Hero() {
 
   // GSAP Entrance Animations
   useEffect(() => {
+    if (!isReady) return;
     const ctx = gsap.context(() => {
       const tl = gsap.timeline({ defaults: { ease: "power3.out" } });
 
@@ -422,7 +413,7 @@ export default function Hero() {
     }, heroRef);
 
     return () => ctx.revert();
-  }, []);
+  }, [isReady]);
 
   return (
     <section
@@ -577,10 +568,12 @@ export default function Hero() {
           src="/images/sakura-branch.webp"
           alt="Lashkari Group Sakura Botanical Art"
           className="w-full h-auto object-contain pointer-events-none opacity-95"
+          decoding="async"
+          loading="eager"
           style={{
             transform: "scaleY(-1) rotate(-3deg)",
             transformOrigin: "center center",
-            filter: "drop-shadow(0 18px 40px rgba(0, 0, 0, 0.07))",
+            willChange: "transform",
           }}
         />
       </div>

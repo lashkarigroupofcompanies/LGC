@@ -93,6 +93,7 @@ const SYLVA_CONNECTORS = [
 
 function DesktopSegmentItem({ segment }: { segment: SpineSegment }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   // Latching mount state: once loaded, it remains mounted forever to prevent disappearing during fast scroll
   const [hasLoaded, setHasLoaded] = useState(segment.id === "genesis");
   const [isNearViewport, setIsNearViewport] = useState(segment.id === "genesis");
@@ -126,6 +127,16 @@ function DesktopSegmentItem({ segment }: { segment: SpineSegment }) {
     return () => observer.disconnect();
   }, [segment.id, segment.staggerMs, hasLoaded]);
 
+  // Pause WebGL rendering loop when offscreen to free 100% GPU
+  useEffect(() => {
+    try {
+      iframeRef.current?.contentWindow?.postMessage(
+        isNearViewport ? "resume" : "pause",
+        "*"
+      );
+    } catch {}
+  }, [isNearViewport]);
+
   return (
     <div
       ref={containerRef}
@@ -139,6 +150,7 @@ function DesktopSegmentItem({ segment }: { segment: SpineSegment }) {
     >
       {hasLoaded ? (
         <iframe
+          ref={iframeRef}
           src="/landing-pages/sylva-branch.html?v=clean"
           title={segment.title}
           loading={segment.id === "genesis" ? "eager" : "lazy"}
@@ -270,10 +282,12 @@ export default function ResponsiveSpineEngine() {
                 src="/images/sakura-branch-intermediate.webp"
                 alt="Sylva Botanical Branch Connecting Link"
                 className="w-full h-auto object-contain pointer-events-none opacity-85"
+                loading="lazy"
+                decoding="async"
                 style={{
                   transform: connector.transform,
                   transformOrigin: "top right",
-                  filter: "drop-shadow(0 14px 30px rgba(25, 35, 18, 0.12))",
+                  willChange: "transform",
                 }}
               />
             </div>

@@ -80,6 +80,8 @@ function RectangularPortrait({
           src={src}
           alt={`Executive Portrait of ${name} — Lashkari Group Leadership`}
           onError={() => setHasError(true)}
+          loading="lazy"
+          decoding="async"
           className="w-full h-full object-cover rounded-[10px] transition-transform duration-700 ease-out group-hover:scale-110"
           style={{
             objectPosition: photoPosition || "center top",
@@ -108,7 +110,7 @@ const CO_FOUNDERS = [
     role: "Investor & Financial Advisor",
     background: "MBBS Fellow",
     quote: "The financial brain who keeps our vision grounded in reality.",
-    photo: "/images/founders/devashish.jpg",
+    photo: "/images/founders/devashish.webp",
     photoPosition: "center 82%",
     photoScale: 1.15,
     accent: "#E23E6E",
@@ -120,7 +122,7 @@ const CO_FOUNDERS = [
     role: "Marketing Head",
     background: "MBBS Fellow",
     quote: "The strategist who makes sure the right people find us.",
-    photo: "/images/founders/aneri.jpg",
+    photo: "/images/founders/aneri.webp",
     photoPosition: "center 20%",
     photoScale: 1.0,
     accent: "#C9A84C",
@@ -132,7 +134,7 @@ const CO_FOUNDERS = [
     role: "Social Media Head",
     background: "MBBS Fellow",
     quote: "The voice that builds our presence across every platform.",
-    photo: "/images/founders/payal.jpg",
+    photo: "/images/founders/payal.webp",
     photoPosition: "center 20%",
     photoScale: 1.0,
     accent: "#FF2E70",
@@ -144,7 +146,7 @@ const CO_FOUNDERS = [
     role: "Design & Creative Lead",
     background: "MBBS Fellow",
     quote: "The eye behind every pixel, every brand, every beautiful thing we ship.",
-    photo: "/images/founders/muskan.jpg",
+    photo: "/images/founders/muskan.webp",
     photoPosition: "center 15%",
     photoScale: 1.0,
     accent: "#E85D88",
@@ -156,7 +158,7 @@ const CO_FOUNDERS = [
     role: "Operations & Management",
     background: "Senior Doctor",
     quote: "The operator who connects people, builds systems, and keeps everything running.",
-    photo: "/images/founders/mitul.jpg",
+    photo: "/images/founders/mitul.webp",
     photoPosition: "center 25%",
     photoScale: 1.05,
     accent: "#C9A84C",
@@ -167,13 +169,13 @@ export default function Founders() {
   // ── HARDWARE-ACCELERATED 3D WAVE ENGINE (AUTO-ADVANCES EVERY 3 SECONDS) ──
   const [activeIndex, setActiveIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [tilt, setTilt] = useState({ x: 0, y: 0 });
 
   const sectionRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
   const dragStartX = useRef<number | null>(null);
   const dragDistance = useRef<number>(0);
   const isDragging = useRef(false);
+  const tiltFrameRef = useRef<number | null>(null);
 
   const count = CO_FOUNDERS.length;
 
@@ -206,7 +208,7 @@ export default function Founders() {
     setTimeout(() => setIsPaused(false), 4000);
   }, [count]);
 
-  // Horizontal Pointer Drag & 3D Tilt Tracking (Zero vertical scroll-trapping)
+  // Horizontal Pointer Drag & 3D Tilt Tracking (Zero vertical scroll-trapping & 0 React re-renders)
   const handlePointerDown = (e: React.PointerEvent) => {
     setIsPaused(true);
     dragStartX.current = e.clientX;
@@ -219,7 +221,15 @@ export default function Founders() {
       const rect = stageRef.current.getBoundingClientRect();
       const nx = Math.max(-1, Math.min(1, ((e.clientX - rect.left) / rect.width - 0.5) * 2));
       const ny = Math.max(-1, Math.min(1, ((e.clientY - rect.top) / rect.height - 0.5) * 2));
-      setTilt({ x: nx, y: ny });
+      if (!tiltFrameRef.current) {
+        tiltFrameRef.current = requestAnimationFrame(() => {
+          if (stageRef.current) {
+            stageRef.current.style.setProperty("--tilt-x", nx.toFixed(3));
+            stageRef.current.style.setProperty("--tilt-y", ny.toFixed(3));
+          }
+          tiltFrameRef.current = null;
+        });
+      }
     }
 
     if (!isDragging.current || dragStartX.current === null) return;
@@ -261,29 +271,29 @@ export default function Founders() {
           src="/images/sakura-branch-intermediate.webp"
           alt="Founders Sakura Branch Accent"
           className="w-full h-auto object-contain pointer-events-none"
+          loading="lazy"
+          decoding="async"
           style={{
             transform: "rotate(-12deg) scaleX(-1)",
             transformOrigin: "top right",
-            filter: "drop-shadow(0 14px 32px rgba(80, 10, 30, 0.15))",
+            willChange: "transform",
           }}
         />
       </div>
 
-      {/* Ambient Deep Cherry Glow following the Sylva path */}
+      {/* Ambient Deep Cherry Glow following the Sylva path (GPU-Accelerated) */}
       <div
         className="absolute top-[8%] left-[-8vw] w-[55vw] h-[650px] rounded-full pointer-events-none z-0"
         style={{
           background:
-            "radial-gradient(ellipse at center, rgba(178, 28, 70, 0.25) 0%, rgba(100, 14, 45, 0.10) 55%, transparent 80%)",
-          filter: "blur(75px)",
+            "radial-gradient(ellipse at center, rgba(178, 28, 70, 0.22) 0%, rgba(100, 14, 45, 0.12) 40%, rgba(100, 14, 45, 0.03) 65%, transparent 85%)",
         }}
       />
       <div
         className="absolute top-[50%] right-[-8vw] w-[60vw] h-[700px] rounded-full pointer-events-none z-0"
         style={{
           background:
-            "radial-gradient(ellipse at center, rgba(220, 20, 75, 0.20) 0%, rgba(68, 88, 56, 0.08) 50%, transparent 80%)",
-          filter: "blur(80px)",
+            "radial-gradient(ellipse at center, rgba(220, 20, 75, 0.18) 0%, rgba(68, 88, 56, 0.08) 40%, rgba(68, 88, 56, 0.02) 65%, transparent 85%)",
         }}
       />
 
@@ -436,7 +446,7 @@ export default function Founders() {
               {/* Rectangular Portrait Photo Frame (Aspect 3:3.8) */}
               <div className="w-[200px] sm:w-[230px] mb-6 relative group">
                 <RectangularPortrait
-                  src="/images/founders/paras.jpg"
+                  src="/images/founders/paras.webp"
                   name="Paras Lashkari"
                   aspect="keynote"
                   className="shadow-[0_0_35px_rgba(230,25,80,0.45),0_0_45px_rgba(201,168,76,0.3)]"
@@ -533,7 +543,10 @@ export default function Founders() {
             onMouseLeave={() => {
               setIsPaused(false);
               isDragging.current = false;
-              setTilt({ x: 0, y: 0 });
+              if (stageRef.current) {
+                stageRef.current.style.setProperty("--tilt-x", "0");
+                stageRef.current.style.setProperty("--tilt-y", "0");
+              }
             }}
             onPointerDown={handlePointerDown}
             onPointerMove={handlePointerMove}
@@ -556,14 +569,17 @@ export default function Founders() {
             <div
               className="absolute inset-0 pointer-events-none z-0 transition-opacity duration-500"
               style={{
-                background: `radial-gradient(circle 350px at ${50 + tilt.x * 25}% ${45 + tilt.y * 20}%, rgba(255, 40, 100, 0.22), transparent 75%)`,
+                background: `radial-gradient(circle 350px at calc(50% + var(--tilt-x, 0) * 25%) calc(45% + var(--tilt-y, 0) * 20%), rgba(255, 40, 100, 0.22), transparent 75%)`,
               }}
             />
 
-            {/* 3D Deck Container */}
+            {/* 3D Deck Container (GPU-accelerated tilt without re-rendering) */}
             <div
-              className="absolute inset-0"
-              style={{ transformStyle: "preserve-3d" }}
+              className="absolute inset-0 transition-transform duration-200 ease-out"
+              style={{
+                transformStyle: "preserve-3d",
+                transform: "rotateX(calc(var(--tilt-y, 0) * -3.5deg)) rotateY(calc(var(--tilt-x, 0) * 4.5deg))",
+              }}
             >
               {CO_FOUNDERS.map((founder, idx) => {
                 const delta = wrappedDelta(idx, activeIndex);
@@ -577,8 +593,7 @@ export default function Founders() {
                 const y = -Math.pow(distance, 1.4) * 6 + Math.sin(delta * 0.8) * 4;
                 const z = focus * 135 - distance * 90;
                 const scale = 0.68 + side * 0.12 + focus * 0.35;
-                const rotateY = tilt.x * focus * 6 - delta * 11;
-                const rotateX = -tilt.y * focus * 4;
+                const rotateY = -delta * 11;
                 const rotateZ = delta * 1.8;
                 const opacity = Math.max(0.18, side * 0.82 + focus * 0.18);
 
@@ -601,7 +616,7 @@ export default function Founders() {
                         : "border-[#FF3366]/35 shadow-[0_14px_35px_rgba(10,1,6,0.7),0_0_15px_rgba(200,20,65,0.12)] hover:border-[#FF3366]/60"
                     )}
                     style={{
-                      transform: `translate(-50%, -50%) translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, ${z.toFixed(1)}px) rotateX(${rotateX.toFixed(1)}deg) rotateY(${rotateY.toFixed(1)}deg) rotateZ(${rotateZ.toFixed(1)}deg) scale(${scale.toFixed(3)})`,
+                      transform: `translate(-50%, -50%) translate3d(${x.toFixed(1)}px, ${y.toFixed(1)}px, ${z.toFixed(1)}px) rotateY(${rotateY.toFixed(1)}deg) rotateZ(${rotateZ.toFixed(1)}deg) scale(${scale.toFixed(3)})`,
                       opacity: opacity.toFixed(2),
                       zIndex: Math.round(100 - distance * 10),
                       background: isCurrent

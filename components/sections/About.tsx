@@ -52,21 +52,19 @@ export default function About() {
       {/* ABOUT ATMOSPHERE: OPTIMIZED SINGLE CANVAS ATMOSPHERE */}
       <SectionAtmosphere butterflyType="gold" butterflyCount={3} petalCount={36} className="z-[3]" />
 
-      {/* ── ATMOSPHERIC WASHES: SAKURA BLUSH & FOREST GREEN AURA ── */}
+      {/* ── ATMOSPHERIC WASHES: SAKURA BLUSH & FOREST GREEN AURA (GPU-Accelerated) ── */}
       <div
         className="absolute top-0 left-[-5vw] w-[50vw] h-[550px] rounded-full pointer-events-none z-0"
         style={{
           background:
-            "radial-gradient(ellipse at 25% 30%, rgba(247, 214, 222, 0.4) 0%, rgba(253, 236, 240, 0.15) 55%, transparent 80%)",
-          filter: "blur(60px)",
+            "radial-gradient(ellipse at 25% 30%, rgba(247, 214, 222, 0.35) 0%, rgba(253, 236, 240, 0.18) 40%, rgba(253, 236, 240, 0.06) 65%, transparent 85%)",
         }}
       />
       <div
         className="absolute top-[2%] right-[-5vw] w-[50vw] h-[650px] rounded-full pointer-events-none z-0"
         style={{
           background:
-            "radial-gradient(ellipse at 75% 35%, rgba(68, 88, 56, 0.16) 0%, rgba(92, 114, 78, 0.06) 55%, transparent 80%)",
-          filter: "blur(70px)",
+            "radial-gradient(ellipse at 75% 35%, rgba(68, 88, 56, 0.15) 0%, rgba(92, 114, 78, 0.07) 40%, rgba(92, 114, 78, 0.02) 65%, transparent 85%)",
         }}
       />
 

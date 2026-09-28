@@ -50,8 +50,12 @@ export default function SectionAtmosphere({
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
-    let width = (canvas.width = Math.max(canvas.parentElement?.offsetWidth || window.innerWidth || 300, 1));
-    let height = (canvas.height = Math.max(canvas.parentElement?.offsetHeight || window.innerHeight || 300, 1));
+    const dpr = Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 1.5);
+    let width = Math.max(canvas.parentElement?.offsetWidth || window.innerWidth || 300, 1);
+    let height = Math.max(canvas.parentElement?.offsetHeight || window.innerHeight || 300, 1);
+    canvas.width = Math.round(width * dpr);
+    canvas.height = Math.round(height * dpr);
+    ctx.scale(dpr, dpr);
 
     // Initialize sakura blossom petals
     const petals: Petal[] = Array.from({ length: petalCount }).map(() => ({
@@ -196,9 +200,10 @@ export default function SectionAtmosphere({
         gradL.addColorStop(0, wing1);
         gradL.addColorStop(1, wing2);
         ctx.fillStyle = gradL;
-        ctx.shadowColor = glow;
-        ctx.shadowBlur = 9;
         ctx.fill();
+        ctx.strokeStyle = glow;
+        ctx.lineWidth = 1;
+        ctx.stroke();
         ctx.restore();
 
         // Right Wing
@@ -214,16 +219,16 @@ export default function SectionAtmosphere({
         gradR.addColorStop(0, wing1);
         gradR.addColorStop(1, wing2);
         ctx.fillStyle = gradR;
-        ctx.shadowColor = glow;
-        ctx.shadowBlur = 9;
         ctx.fill();
+        ctx.strokeStyle = glow;
+        ctx.lineWidth = 1;
+        ctx.stroke();
         ctx.restore();
 
         // Delicate Body
         ctx.beginPath();
         ctx.ellipse(0, b.size * 0.1, 1.1, b.size * 0.55, 0, 0, Math.PI * 2);
         ctx.fillStyle = "#1A1A1A";
-        ctx.shadowColor = "transparent";
         ctx.fill();
 
         ctx.restore();
@@ -233,9 +238,12 @@ export default function SectionAtmosphere({
     };
 
     const handleResize = () => {
-      if (!canvas) return;
-      width = canvas.width = Math.max(canvas.parentElement?.offsetWidth || window.innerWidth || 300, 1);
-      height = canvas.height = Math.max(canvas.parentElement?.offsetHeight || window.innerHeight || 300, 1);
+      if (!canvas || !ctx) return;
+      width = Math.max(canvas.parentElement?.offsetWidth || window.innerWidth || 300, 1);
+      height = Math.max(canvas.parentElement?.offsetHeight || window.innerHeight || 300, 1);
+      canvas.width = Math.round(width * dpr);
+      canvas.height = Math.round(height * dpr);
+      ctx.scale(dpr, dpr);
     };
 
     window.addEventListener("resize", handleResize);

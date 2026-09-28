@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Cormorant_Garamond, Space_Grotesk } from "next/font/google";
+import { Cormorant_Garamond, Space_Grotesk, Inter } from "next/font/google";
 import "./globals.css";
+import SmoothScrollProvider from "@/components/providers/SmoothScrollProvider";
 
 const cormorant = Cormorant_Garamond({
   subsets: ["latin"],
@@ -14,6 +15,13 @@ const spaceGrotesk = Space_Grotesk({
   subsets: ["latin"],
   weight: ["300", "400", "500", "600"],
   variable: "--font-space-grotesk",
+  display: "swap",
+});
+
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  variable: "--font-inter",
   display: "swap",
 });
 
@@ -317,7 +325,10 @@ export default function RootLayout({
   };
 
   return (
-    <html lang="en" className={`${cormorant.variable} ${spaceGrotesk.variable}`}>
+    <html
+      lang="en"
+      className={`${cormorant.variable} ${spaceGrotesk.variable} ${inter.variable}`}
+    >
       <head>
         <script
           type="application/ld+json"
@@ -325,7 +336,7 @@ export default function RootLayout({
         />
       </head>
       <body className="antialiased bg-[#FAF6F8] text-[#1A1A1A] overflow-x-hidden">
-        {children}
+        <SmoothScrollProvider>{children}</SmoothScrollProvider>
       </body>
     </html>
   );
