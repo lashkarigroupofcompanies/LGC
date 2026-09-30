@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { ArrowUpRight, Mail, MapPin, Send, Sparkles, Building, Globe, CheckCircle2 } from "lucide-react";
 import SectionAtmosphere from "@/components/ecosystem/SectionAtmosphere";
 import VentureAdminModal from "@/components/admin/VentureAdminModal";
-import { getStoredVentures, subscribeVenturesStore, VentureItem } from "@/lib/venturesStore";
+import { getStoredVentures, subscribeVenturesStore, syncWithCloud, VentureItem } from "@/lib/venturesStore";
 
 export default function Footer() {
   const [isAdminOpen, setIsAdminOpen] = useState(false);
@@ -21,6 +21,7 @@ export default function Footer() {
 
   useEffect(() => {
     setPortals(getStoredVentures());
+    syncWithCloud();
     return subscribeVenturesStore(() => {
       setPortals(getStoredVentures());
     });

@@ -162,6 +162,14 @@ export function saveStoredVentures(ventures: VentureItem[]): void {
   try {
     localStorage.setItem(STORAGE_KEY_VENTURES, JSON.stringify(ventures));
     window.dispatchEvent(new CustomEvent(SYNC_EVENT_NAME));
+
+    // Push to cloud Vercel Blob store
+    const currentStats = getStoredStats();
+    fetch("/api/ventures", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ventures, stats: currentStats }),
+    }).catch((e) => console.error("Cloud push failed for ventures", e));
   } catch (e) {
     console.error("Failed to save ventures to localStorage", e);
   }
@@ -187,8 +195,40 @@ export function saveStoredStats(stats: LgcStats): void {
   try {
     localStorage.setItem(STORAGE_KEY_STATS, JSON.stringify(stats));
     window.dispatchEvent(new CustomEvent(SYNC_EVENT_NAME));
+
+    // Push to cloud Vercel Blob store
+    const currentVentures = getStoredVentures();
+    fetch("/api/ventures", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ventures: currentVentures, stats }),
+    }).catch((e) => console.error("Cloud push failed for stats", e));
   } catch (e) {
     console.error("Failed to save stats to localStorage", e);
+  }
+}
+
+let isSyncing = false;
+
+export async function syncWithCloud(): Promise<void> {
+  if (typeof window === "undefined" || isSyncing) return;
+  isSyncing = true;
+  try {
+    const res = await fetch("/api/ventures", { cache: "no-store" });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && Array.isArray(data.ventures) && data.ventures.length > 0) {
+        localStorage.setItem(STORAGE_KEY_VENTURES, JSON.stringify(data.ventures));
+        if (data.stats) {
+          localStorage.setItem(STORAGE_KEY_STATS, JSON.stringify(data.stats));
+        }
+        window.dispatchEvent(new CustomEvent(SYNC_EVENT_NAME));
+      }
+    }
+  } catch (e) {
+    console.warn("Could not sync ventures with cloud:", e);
+  } finally {
+    isSyncing = false;
   }
 }
 
@@ -202,3 +242,4 @@ export function subscribeVenturesStore(callback: () => void): () => void {
     window.removeEventListener("storage", handler);
   };
 }
+

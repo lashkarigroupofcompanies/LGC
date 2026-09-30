@@ -7,6 +7,7 @@ import {
   VentureItem,
   getStoredVentures,
   subscribeVenturesStore,
+  syncWithCloud,
   INITIAL_VENTURES,
 } from "@/lib/venturesStore";
 
@@ -21,6 +22,7 @@ export default function Ventures() {
 
   useEffect(() => {
     setVenturesList(getStoredVentures());
+    syncWithCloud();
     return subscribeVenturesStore(() => {
       setVenturesList(getStoredVentures());
     });

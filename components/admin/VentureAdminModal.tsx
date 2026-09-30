@@ -26,6 +26,7 @@ import {
   saveStoredVentures,
   getStoredStats,
   saveStoredStats,
+  syncWithCloud,
   INITIAL_VENTURES,
   INITIAL_STATS,
 } from "@/lib/venturesStore";
@@ -61,6 +62,10 @@ export default function VentureAdminModal({ isOpen, onClose }: VentureAdminModal
       setStats(getStoredStats());
       setEditingId(null);
       resetForm();
+      syncWithCloud().then(() => {
+        setVentures(getStoredVentures());
+        setStats(getStoredStats());
+      });
     }
   }, [isOpen]);
 
@@ -246,6 +251,10 @@ export default function VentureAdminModal({ isOpen, onClose }: VentureAdminModal
                 </span>
                 <span className="px-2 py-0.2 rounded-full text-[9px] font-mono bg-emerald-500/20 text-emerald-400 border border-emerald-500/40">
                   ONLINE
+                </span>
+                <span className="px-2 py-0.2 rounded-full text-[9px] font-mono bg-[#C9A84C]/20 text-[#DFC17B] border border-[#C9A84C]/40 flex items-center gap-1">
+                  <span>☁️</span>
+                  <span>CLOUD SYNC</span>
                 </span>
               </div>
               <h3
