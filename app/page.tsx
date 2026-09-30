@@ -50,19 +50,10 @@ export default function Home() {
 
         <div className="relative z-10">
           <Hero isReady={isReady} />
-          {/* Below-the-fold sections with content-visibility for ultra-fast initial layout */}
-          <div style={{ contentVisibility: "auto", containIntrinsicSize: "1px 900px" }}>
-            <About />
-          </div>
-          <div style={{ contentVisibility: "auto", containIntrinsicSize: "1px 900px" }}>
-            <Ventures />
-          </div>
-          <div style={{ contentVisibility: "auto", containIntrinsicSize: "1px 1100px" }}>
-            <Founders />
-          </div>
-          <div style={{ contentVisibility: "auto", containIntrinsicSize: "1px 800px" }}>
-            <Footer />
-          </div>
+          <About />
+          <Ventures />
+          <Founders />
+          <Footer />
         </div>
       </main>
     </>

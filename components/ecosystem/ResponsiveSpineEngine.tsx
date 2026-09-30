@@ -94,38 +94,30 @@ const SYLVA_CONNECTORS = [
 function DesktopSegmentItem({ segment }: { segment: SpineSegment }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  // Latching mount state: once loaded, it remains mounted forever to prevent disappearing during fast scroll
+  // Latching mount state: once loaded, it remains mounted to avoid re-fetching
   const [hasLoaded, setHasLoaded] = useState(segment.id === "genesis");
   const [isNearViewport, setIsNearViewport] = useState(segment.id === "genesis");
 
   useEffect(() => {
-    // If Genesis, start immediately
-    if (segment.id === "genesis") {
-      setHasLoaded(true);
-      return;
-    }
-
     const el = containerRef.current;
     if (!el) return;
 
-    // Generous 1200px lookahead margin so iframes pre-render before user scrolls into view
+    // Tight 150px lookahead margin:
+    // Only the segment currently in view (or about to enter within 150px) is active.
+    // When scrolled past, it immediately pauses WebGL and hides, freeing 100% GPU bandwidth.
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsNearViewport(entry.isIntersecting);
         if (entry.isIntersecting && !hasLoaded) {
-          // Staggered load to ensure zero CPU lockup on startup
-          const timer = setTimeout(() => {
-            setHasLoaded(true);
-          }, segment.staggerMs || 0);
-          return () => clearTimeout(timer);
+          setHasLoaded(true);
         }
       },
-      { rootMargin: "1200px 0px" }
+      { rootMargin: "150px 0px" }
     );
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [segment.id, segment.staggerMs, hasLoaded]);
+  }, [hasLoaded]);
 
   // Pause WebGL rendering loop when offscreen to free 100% GPU
   useEffect(() => {
@@ -144,10 +136,17 @@ function DesktopSegmentItem({ segment }: { segment: SpineSegment }) {
       style={{
         top: segment.top,
         height: segment.height,
-        maskImage: segment.mask || "none",
-        WebkitMaskImage: segment.mask || "none",
+        contain: "paint",
       }}
     >
+      {/* GPU-composited feathered edge overlays (zero CPU mask re-rasterization penalty) */}
+      {segment.id !== "genesis" && (
+        <div className="absolute top-0 right-0 w-full h-36 bg-gradient-to-b from-[#FAF6F8] via-[#FAF6F8]/70 to-transparent pointer-events-none z-10" />
+      )}
+      {segment.id !== "footer" && (
+        <div className="absolute bottom-0 right-0 w-full h-36 bg-gradient-to-t from-[#FAF6F8] via-[#FAF6F8]/70 to-transparent pointer-events-none z-10" />
+      )}
+
       {hasLoaded ? (
         <iframe
           ref={iframeRef}
@@ -162,7 +161,7 @@ function DesktopSegmentItem({ segment }: { segment: SpineSegment }) {
               );
             } catch {}
           }}
-          className="border-0 pointer-events-none transition-opacity duration-500"
+          className="border-0 pointer-events-none transition-opacity duration-300"
           style={{
             position: "absolute",
             right: "-2vw",
@@ -175,6 +174,7 @@ function DesktopSegmentItem({ segment }: { segment: SpineSegment }) {
             transform: `rotate(-90deg) ${segment.scale}`,
             pointerEvents: "none",
             visibility: isNearViewport ? "visible" : "hidden",
+            willChange: "transform",
           }}
         />
       ) : (

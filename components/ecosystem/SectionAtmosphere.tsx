@@ -50,7 +50,8 @@ export default function SectionAtmosphere({
     const ctx = canvas.getContext("2d", { alpha: true });
     if (!ctx) return;
 
-    const dpr = Math.min(typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1, 1.5);
+    // Capped at 1.0 DPR for lightweight, 60-120 FPS buttery smooth particles without fill-rate bottleneck
+    const dpr = 1.0;
     let width = Math.max(canvas.parentElement?.offsetWidth || window.innerWidth || 300, 1);
     let height = Math.max(canvas.parentElement?.offsetHeight || window.innerHeight || 300, 1);
     canvas.width = Math.round(width * dpr);
@@ -255,7 +256,7 @@ export default function SectionAtmosphere({
 
     window.addEventListener("resize", handleResize);
 
-    // Performance: Pause animation when section is scrolled out of viewport
+    // Performance: Pause animation immediately when section is scrolled out of viewport
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -270,7 +271,7 @@ export default function SectionAtmosphere({
           }
         });
       },
-      { threshold: 0.05 }
+      { threshold: 0, rootMargin: "50px 0px" }
     );
 
     observer.observe(canvas);
@@ -286,7 +287,12 @@ export default function SectionAtmosphere({
     <canvas
       ref={canvasRef}
       className={`absolute inset-0 w-full h-full pointer-events-none ${className}`}
-      style={{ pointerEvents: "none" }}
+      style={{
+        pointerEvents: "none",
+        contain: "strict",
+        transform: "translateZ(0)",
+        willChange: "transform",
+      }}
     />
   );
 }

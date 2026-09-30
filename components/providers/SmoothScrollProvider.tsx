@@ -45,15 +45,15 @@ export default function SmoothScrollProvider({
 
     // Initialize Lenis with ultra-fluid physical momentum & GSAP lockstep
     const lenis = new Lenis({
-      lerp: 0.088,
-      duration: 1.2,
-      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      lerp: 0.088, // Silky, continuous luxury momentum (Apple & Awwwards standard)
       orientation: "vertical",
       gestureOrientation: "vertical",
       smoothWheel: true,
-      wheelMultiplier: 1.02,
-      touchMultiplier: 1.2,
+      wheelMultiplier: 1.0,
+      touchMultiplier: 1.5,
+      syncTouch: false,
       infinite: false,
+      autoResize: true,
     });
 
     lenisRef.current = lenis;
@@ -67,7 +67,7 @@ export default function SmoothScrollProvider({
     };
 
     gsap.ticker.add(tickerCallback);
-    gsap.ticker.lagSmoothing(500, 33);
+    gsap.ticker.lagSmoothing(0);
 
     return () => {
       gsap.ticker.remove(tickerCallback);

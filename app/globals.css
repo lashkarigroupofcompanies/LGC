@@ -19,7 +19,8 @@ html.lenis, html.lenis body {
   overflow: hidden;
 }
 
-/* Eliminate pointer-event and mouseover overhead during active scrolling */
+/* Eliminate pointer-event and mouseover overhead so wheel events are never swallowed */
+.lenis.lenis-smooth iframe,
 .lenis-scrolling iframe,
 .lenis-scrolling canvas {
   pointer-events: none !important;
@@ -189,6 +190,8 @@ html.lenis, html.lenis body {
   isolation: isolate;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
+  transform: translateZ(0);
+  will-change: transform;
 }
 
 @media (min-width: 1024px) {
