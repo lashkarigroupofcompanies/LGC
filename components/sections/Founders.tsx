@@ -271,10 +271,10 @@ export default function Founders() {
           src="/images/sakura-branch-intermediate.webp"
           alt="Founders Sakura Branch Accent"
           className="w-full h-auto object-contain pointer-events-none"
-          loading="lazy"
+          loading="eager"
           decoding="async"
           style={{
-            transform: "rotate(-12deg) scaleX(-1)",
+            transform: "rotate(-12deg) scaleX(-1) translateZ(0)",
             transformOrigin: "top right",
             willChange: "transform",
           }}

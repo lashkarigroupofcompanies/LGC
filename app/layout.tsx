@@ -330,6 +330,12 @@ export default function RootLayout({
       className={`${cormorant.variable} ${spaceGrotesk.variable} ${inter.variable}`}
     >
       <head>
+        <link
+          rel="preload"
+          as="image"
+          href="/images/sakura-branch-intermediate.webp"
+          type="image/webp"
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

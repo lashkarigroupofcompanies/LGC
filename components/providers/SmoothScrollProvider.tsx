@@ -43,7 +43,7 @@ export default function SmoothScrollProvider({
       gsap.registerPlugin(ScrollTrigger);
     }
 
-    // Initialize Lenis with ultra-fluid physical momentum & GSAP lockstep
+    // Initialize Lenis with ultra-fluid physical momentum & native hardware vsync autoRaf
     const lenis = new Lenis({
       lerp: 0.088, // Silky, continuous luxury momentum (Apple & Awwwards standard)
       orientation: "vertical",
@@ -54,6 +54,8 @@ export default function SmoothScrollProvider({
       syncTouch: false,
       infinite: false,
       autoResize: true,
+      autoRaf: true,
+      anchors: true,
     });
 
     lenisRef.current = lenis;
@@ -62,15 +64,7 @@ export default function SmoothScrollProvider({
     // Synchronize Lenis scroll with GSAP ScrollTrigger
     lenis.on("scroll", ScrollTrigger.update);
 
-    const tickerCallback = (time: number) => {
-      lenis.raf(time * 1000);
-    };
-
-    gsap.ticker.add(tickerCallback);
-    gsap.ticker.lagSmoothing(0);
-
     return () => {
-      gsap.ticker.remove(tickerCallback);
       lenis.destroy();
       lenisRef.current = null;
       setLenisInstance(null);

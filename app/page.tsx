@@ -38,10 +38,10 @@ export default function Home() {
             src="/images/sakura-branch-intermediate.webp"
             alt="Lashkari Group Sakura Botanical Art Inter-Section Transition"
             className="w-full h-auto object-contain pointer-events-none opacity-90"
-            loading="lazy"
+            loading="eager"
             decoding="async"
             style={{
-              transform: "rotate(-8deg) scaleX(-1)",
+              transform: "rotate(-8deg) scaleX(-1) translateZ(0)",
               transformOrigin: "top right",
               willChange: "transform",
             }}

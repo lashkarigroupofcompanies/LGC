@@ -224,7 +224,7 @@ html.lenis, html.lenis body {
   letter-spacing: 0.18em;
   text-transform: uppercase;
   white-space: nowrap;
-  will-change: width, height, transform;
+  will-change: transform;
   transition: color 0.18s cubic-bezier(0.22, 0.61, 0.36, 1),
     border-color 0.2s cubic-bezier(0.22, 0.61, 0.36, 1),
     background 0.2s cubic-bezier(0.22, 0.61, 0.36, 1),

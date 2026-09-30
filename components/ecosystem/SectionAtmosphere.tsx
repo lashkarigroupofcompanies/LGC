@@ -16,6 +16,12 @@ interface Petal {
   opacity: number;
 }
 
+interface ButterflySprite {
+  canvas: HTMLCanvasElement;
+  originX: number;
+  originY: number;
+}
+
 interface Butterfly {
   id: string;
   x: number;
@@ -27,6 +33,8 @@ interface Butterfly {
   flapPhase: number;
   flapSpeed: number;
   heading: number;
+  spriteL: ButterflySprite;
+  spriteR: ButterflySprite;
 }
 
 interface SectionAtmosphereProps {
@@ -73,19 +81,84 @@ export default function SectionAtmosphere({
       opacity: Math.random() * 0.4 + 0.35,
     }));
 
-    // Initialize distinct butterflies for this section
-    const butterflies: Butterfly[] = Array.from({ length: butterflyCount }).map((_, idx) => ({
-      id: `${butterflyType}-${idx}`,
-      x: width * (0.35 + idx * 0.25),
-      y: height * (0.3 + idx * 0.2),
-      targetX: width * (0.4 + Math.random() * 0.35),
-      targetY: height * (0.25 + Math.random() * 0.45),
-      speed: 1.0 + Math.random() * 0.4,
-      size: 11.5 + Math.random() * 2.5,
-      flapPhase: idx * 1.5,
-      flapSpeed: 0.15 + Math.random() * 0.04,
-      heading: 0,
-    }));
+    // Helper to generate a pre-rendered high-res wing sprite
+    const makeWingSprite = (size: number, c1: string, c2: string, glowCol: string, isRight: boolean) => {
+      const sw = Math.ceil(size * 2.6) + 16;
+      const sh = Math.ceil(size * 2.6) + 16;
+      const wc = document.createElement("canvas");
+      wc.width = sw;
+      wc.height = sh;
+      const wctx = wc.getContext("2d");
+      if (!wctx) return { canvas: wc, originX: 0, originY: 0 };
+
+      const originX = isRight ? 8 : sw - 8;
+      const originY = 8 + size * 0.7;
+      wctx.translate(originX, originY);
+      if (isRight) wctx.scale(-1, 1);
+
+      wctx.beginPath();
+      wctx.moveTo(0, 0);
+      wctx.bezierCurveTo(size * 1.5, -size * 1.4, size * 2.1, -size * 0.2, size * 1.8, size * 0.7);
+      wctx.bezierCurveTo(size * 1.3, size * 1.3, size * 0.6, size * 1.4, 0, size * 0.5);
+      wctx.closePath();
+
+      const grad = wctx.createLinearGradient(0, -size, size * 2, size);
+      grad.addColorStop(0, c1);
+      grad.addColorStop(1, c2);
+      wctx.fillStyle = grad;
+      wctx.fill();
+      wctx.strokeStyle = glowCol;
+      wctx.lineWidth = 1;
+      wctx.stroke();
+
+      return { canvas: wc, originX, originY };
+    };
+
+    // Initialize distinct butterflies with pre-rendered wing textures for this section
+    const butterflies: Butterfly[] = Array.from({ length: butterflyCount }).map((_, idx) => {
+      let wing1 = "#1E88E5";
+      let wing2 = "#64B5F6";
+      let glow = "rgba(0, 229, 255, 0.45)";
+
+      if (butterflyType === "gold") {
+        wing1 = "#D97706";
+        wing2 = "#FDE68A";
+        glow = "rgba(251, 191, 36, 0.45)";
+      } else if (butterflyType === "rose") {
+        if (idx === 1) {
+          wing1 = "#D97706";
+          wing2 = "#FDE68A";
+          glow = "rgba(251, 191, 36, 0.45)";
+        } else if (idx === 2) {
+          wing1 = "#9D174D";
+          wing2 = "#FDA4AF";
+          glow = "rgba(244, 63, 94, 0.50)";
+        } else {
+          wing1 = "#BE185D";
+          wing2 = "#F472B6";
+          glow = "rgba(244, 63, 94, 0.45)";
+        }
+      }
+
+      const size = 11.5 + Math.random() * 2.5;
+      const spriteL = makeWingSprite(size, wing1, wing2, glow, false);
+      const spriteR = makeWingSprite(size, wing1, wing2, glow, true);
+
+      return {
+        id: `${butterflyType}-${idx}`,
+        x: width * (0.35 + idx * 0.25),
+        y: height * (0.3 + idx * 0.2),
+        targetX: width * (0.4 + Math.random() * 0.35),
+        targetY: height * (0.25 + Math.random() * 0.45),
+        speed: 1.0 + Math.random() * 0.4,
+        size,
+        flapPhase: idx * 1.5,
+        flapSpeed: 0.15 + Math.random() * 0.04,
+        heading: 0,
+        spriteL,
+        spriteR,
+      };
+    });
 
     // Pre-render a master crisp sakura petal on an off-screen canvas to eliminate GC allocations
     const petalCanvas = document.createElement("canvas");
@@ -136,7 +209,7 @@ export default function SectionAtmosphere({
         ctx.restore();
       });
 
-      // 2. Render Section-Specific Fluttering Butterflies
+      // 2. Render Section-Specific Fluttering Butterflies (Hardware Sprites — 0 GC Allocations)
       butterflies.forEach((b) => {
         b.flapPhase += b.flapSpeed;
         const flap = Math.cos(b.flapPhase);
@@ -165,72 +238,16 @@ export default function SectionAtmosphere({
         ctx.translate(b.x, b.y);
         ctx.rotate(b.heading + Math.PI / 2);
 
-        // Section-specific butterfly color palettes
-        let wing1 = "#1E88E5";
-        let wing2 = "#64B5F6";
-        let glow = "rgba(0, 229, 255, 0.45)";
-
-        if (butterflyType === "gold") {
-          // Imperial Gold Swallowtail (About Section)
-          wing1 = "#D97706";
-          wing2 = "#FDE68A";
-          glow = "rgba(251, 191, 36, 0.45)";
-        } else if (butterflyType === "rose") {
-          // Velvet Rose Swallowtails (Ventures Section) with delicate variety
-          if (b.id.endsWith("-1")) {
-            // Radiant Imperial Gold accent butterfly in Ventures
-            wing1 = "#D97706";
-            wing2 = "#FDE68A";
-            glow = "rgba(251, 191, 36, 0.45)";
-          } else if (b.id.endsWith("-2")) {
-            // Royal Ruby Rose Swallowtail
-            wing1 = "#9D174D";
-            wing2 = "#FDA4AF";
-            glow = "rgba(244, 63, 94, 0.50)";
-          } else {
-            // Deep Velvet Magenta Rose Swallowtail
-            wing1 = "#BE185D";
-            wing2 = "#F472B6";
-            glow = "rgba(244, 63, 94, 0.45)";
-          }
-        }
-
-        // Left Wing
+        // Left Wing Sprite
         ctx.save();
         ctx.scale(flap, 1);
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.bezierCurveTo(b.size * 1.5, -b.size * 1.4, b.size * 2.1, -b.size * 0.2, b.size * 1.8, b.size * 0.7);
-        ctx.bezierCurveTo(b.size * 1.3, b.size * 1.3, b.size * 0.6, b.size * 1.4, 0, b.size * 0.5);
-        ctx.closePath();
-
-        const gradL = ctx.createLinearGradient(0, -b.size, b.size * 2, b.size);
-        gradL.addColorStop(0, wing1);
-        gradL.addColorStop(1, wing2);
-        ctx.fillStyle = gradL;
-        ctx.fill();
-        ctx.strokeStyle = glow;
-        ctx.lineWidth = 1;
-        ctx.stroke();
+        ctx.drawImage(b.spriteL.canvas, -b.spriteL.originX, -b.spriteL.originY);
         ctx.restore();
 
-        // Right Wing
+        // Right Wing Sprite
         ctx.save();
         ctx.scale(-flap, 1);
-        ctx.beginPath();
-        ctx.moveTo(0, 0);
-        ctx.bezierCurveTo(-b.size * 1.5, -b.size * 1.4, -b.size * 2.1, -b.size * 0.2, -b.size * 1.8, b.size * 0.7);
-        ctx.bezierCurveTo(-b.size * 1.3, b.size * 1.3, -b.size * 0.6, b.size * 1.4, 0, b.size * 0.5);
-        ctx.closePath();
-
-        const gradR = ctx.createLinearGradient(-b.size * 2, -b.size, 0, b.size);
-        gradR.addColorStop(0, wing1);
-        gradR.addColorStop(1, wing2);
-        ctx.fillStyle = gradR;
-        ctx.fill();
-        ctx.strokeStyle = glow;
-        ctx.lineWidth = 1;
-        ctx.stroke();
+        ctx.drawImage(b.spriteR.canvas, -b.spriteR.originX, -b.spriteR.originY);
         ctx.restore();
 
         // Delicate Body
@@ -271,7 +288,7 @@ export default function SectionAtmosphere({
           }
         });
       },
-      { threshold: 0, rootMargin: "50px 0px" }
+      { threshold: 0, rootMargin: "0px" }
     );
 
     observer.observe(canvas);

@@ -30,7 +30,6 @@ interface SpecItemState {
 }
 
 export default function Hero({ isReady = true }: { isReady?: boolean }) {
-  const [activeSection, setActiveSection] = useState("HOME");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -38,6 +37,14 @@ export default function Hero({ isReady = true }: { isReady?: boolean }) {
     const sectionElements = sectionIds
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => Boolean(el));
+
+    const updateActiveDock = (activeLabel: string) => {
+      const dockLinks = navDockRef.current?.querySelectorAll<HTMLAnchorElement>(".sylva-dock-item");
+      dockLinks?.forEach((link) => {
+        const text = link.querySelector("span")?.textContent?.trim();
+        link.classList.toggle("is-active", text === activeLabel);
+      });
+    };
 
     const observer = new IntersectionObserver(
       (entries) => {
@@ -50,9 +57,9 @@ export default function Hero({ isReady = true }: { isReady?: boolean }) {
             founders: "FOUNDERS",
             contact: "CONTACT",
           };
-          setActiveSection(sectionMap[currentId] || "HOME");
+          updateActiveDock(sectionMap[currentId] || "HOME");
         } else if (typeof window !== "undefined" && window.scrollY < window.innerHeight * 0.4) {
-          setActiveSection("HOME");
+          updateActiveDock("HOME");
         }
       },
       { rootMargin: "-20% 0px -40% 0px", threshold: [0, 0.2, 0.5] }
@@ -503,7 +510,7 @@ export default function Hero({ isReady = true }: { isReady?: boolean }) {
               data-spec
               className={cn(
                 "sylva-dock-item",
-                activeSection === item.label && "is-active"
+                item.label === "HOME" && "is-active"
               )}
             >
               <span>{item.label}</span>
@@ -599,10 +606,7 @@ export default function Hero({ isReady = true }: { isReady?: boolean }) {
               >
                 <div className="flex items-center justify-between">
                   <span
-                    className={cn(
-                      "text-2xl font-serif tracking-wider transition-colors",
-                      activeSection === item.label ? "text-[#C9A84C] italic font-semibold" : "text-white/85 group-hover:text-[#C9A84C]"
-                    )}
+                    className="text-2xl font-serif tracking-wider transition-colors text-white/85 group-hover:text-[#C9A84C]"
                     style={{ fontFamily: "'Cormorant Garamond', serif" }}
                   >
                     {item.label}
