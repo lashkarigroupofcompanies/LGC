@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import SectionAtmosphere from "@/components/ecosystem/SectionAtmosphere";
-import { getStoredStats, subscribeVenturesStore, INITIAL_STATS } from "@/lib/venturesStore";
+import { getStoredStats, subscribeVenturesStore, syncWithCloud, INITIAL_STATS } from "@/lib/venturesStore";
 
 const PHILOSOPHIES = [
   {
@@ -31,6 +31,7 @@ export default function About() {
 
   useEffect(() => {
     setStatsData(getStoredStats());
+    syncWithCloud();
     return subscribeVenturesStore(() => {
       setStatsData(getStoredStats());
     });

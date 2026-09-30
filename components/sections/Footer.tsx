@@ -488,10 +488,11 @@ export default function Footer() {
               <button
                 type="button"
                 onClick={() => setIsAdminOpen(true)}
-                className="inline-flex items-center justify-center w-5 h-5 rounded-full border border-[#C9A84C]/60 text-[#DFC17B] hover:text-[#120A0E] hover:bg-[#C9A84C] hover:border-[#DFC17B] transition-all duration-200 mr-2 cursor-pointer shadow-[0_0_12px_rgba(201,168,76,0.35)] group align-middle"
-                title="Open LGC Venture Management & Metrics Console"
+                className="relative inline-flex items-center justify-center w-6 h-6 sm:w-5 sm:h-5 rounded-full border border-[#C9A84C]/70 text-[#DFC17B] hover:text-[#120A0E] hover:bg-[#C9A84C] hover:border-[#DFC17B] transition-all duration-200 mr-2.5 cursor-pointer shadow-[0_0_14px_rgba(201,168,76,0.4)] group align-middle before:absolute before:-inset-2.5 before:content-[''] touch-manipulation shrink-0"
+                title="Open LGC Executive Console (Password: LGC@2026)"
+                aria-label="Open Executive Console"
               >
-                <span className="font-serif text-[13px] group-hover:scale-110 transition-transform font-bold">
+                <span className="font-serif text-[14px] sm:text-[13px] group-hover:scale-110 transition-transform font-bold select-none pointer-events-none">
                   ©
                 </span>
               </button>

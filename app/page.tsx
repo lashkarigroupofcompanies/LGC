@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import Hero from "@/components/sections/Hero";
 import About from "@/components/sections/About";
 import Ventures from "@/components/sections/Ventures";
@@ -8,9 +8,15 @@ import Founders from "@/components/sections/Founders";
 import Footer from "@/components/sections/Footer";
 import ResponsiveSpineEngine from "@/components/ecosystem/ResponsiveSpineEngine";
 import BrandedPreloader from "@/components/ui/BrandedPreloader";
+import { syncWithCloud } from "@/lib/venturesStore";
 
 export default function Home() {
   const [isReady, setIsReady] = useState(false);
+
+  useEffect(() => {
+    // Eagerly sync global cloud data while preloader is active
+    syncWithCloud();
+  }, []);
 
   const handlePreloaderComplete = useCallback(() => {
     setIsReady(true);

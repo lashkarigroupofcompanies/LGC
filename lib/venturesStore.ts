@@ -126,10 +126,6 @@ export const INITIAL_VENTURES: VentureItem[] = [
   },
 ];
 
-const STORAGE_KEY_VENTURES = "lgc_ventures_data_v1";
-const STORAGE_KEY_STATS = "lgc_stats_data_v1";
-const SYNC_EVENT_NAME = "lgc_ventures_store_updated";
-
 export interface LgcStats {
   activeVentures: string;
   totalFounders: string;
@@ -144,68 +140,92 @@ export const INITIAL_STATS: LgcStats = {
   established: "2026",
 };
 
-export function getStoredVentures(): VentureItem[] {
-  if (typeof window === "undefined") return INITIAL_VENTURES;
+const SYNC_EVENT_NAME = "lgc_universal_ventures_sync";
+
+// ── UNIVERSAL MEMORY STATE (NO LOCAL STORAGE SKEW) ──
+let memoryVentures: VentureItem[] = [...INITIAL_VENTURES];
+let memoryStats: LgcStats = { ...INITIAL_STATS };
+
+// Purge any legacy localStorage cache on startup so no device is trapped in a local offline divergence
+if (typeof window !== "undefined") {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY_VENTURES);
-    if (!raw) return INITIAL_VENTURES;
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) return parsed;
-  } catch (e) {
-    console.error("Failed to read ventures from localStorage", e);
+    localStorage.removeItem("lgc_ventures_data_v1");
+    localStorage.removeItem("lgc_stats_data_v1");
+    sessionStorage.removeItem("lgc_ventures_data_v1");
+    sessionStorage.removeItem("lgc_stats_data_v1");
+  } catch {
+    // Non-fatal if storage access is restricted
   }
-  return INITIAL_VENTURES;
 }
 
-export function saveStoredVentures(ventures: VentureItem[]): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(STORAGE_KEY_VENTURES, JSON.stringify(ventures));
-    window.dispatchEvent(new CustomEvent(SYNC_EVENT_NAME));
-
-    // Push to cloud Vercel Blob store
-    const currentStats = getStoredStats();
-    fetch("/api/ventures", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ventures, stats: currentStats }),
-    }).catch((e) => console.error("Cloud push failed for ventures", e));
-  } catch (e) {
-    console.error("Failed to save ventures to localStorage", e);
-  }
+export function getStoredVentures(): VentureItem[] {
+  return memoryVentures;
 }
 
 export function getStoredStats(): LgcStats {
-  if (typeof window === "undefined") return INITIAL_STATS;
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY_STATS);
-    if (!raw) return INITIAL_STATS;
-    const parsed = JSON.parse(raw);
-    if (parsed && typeof parsed === "object") {
-      return { ...INITIAL_STATS, ...parsed };
-    }
-  } catch (e) {
-    console.error("Failed to read stats from localStorage", e);
-  }
-  return INITIAL_STATS;
+  return memoryStats;
 }
 
-export function saveStoredStats(stats: LgcStats): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(STORAGE_KEY_STATS, JSON.stringify(stats));
-    window.dispatchEvent(new CustomEvent(SYNC_EVENT_NAME));
+export async function saveStoredVenturesAsync(
+  ventures: VentureItem[],
+  password?: string
+): Promise<{ success: boolean; url?: string }> {
+  // Push directly to cloud Vercel Blob store with master authorization
+  const currentStats = getStoredStats();
+  const res = await fetch("/api/ventures", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ventures,
+      stats: currentStats,
+      password: password || "LGC@2026",
+    }),
+  });
 
-    // Push to cloud Vercel Blob store
-    const currentVentures = getStoredVentures();
-    fetch("/api/ventures", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ventures: currentVentures, stats }),
-    }).catch((e) => console.error("Cloud push failed for stats", e));
-  } catch (e) {
-    console.error("Failed to save stats to localStorage", e);
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+    throw new Error(err.error || `Server responded with ${res.status}`);
   }
+
+  const data = await res.json();
+  // Update universal memory state strictly upon successful cloud response
+  memoryVentures = ventures;
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent(SYNC_EVENT_NAME));
+  }
+
+  return { success: true, url: data.url };
+}
+
+export async function saveStoredStatsAsync(
+  stats: LgcStats,
+  password?: string
+): Promise<{ success: boolean; url?: string }> {
+  // Push directly to cloud Vercel Blob store with master authorization
+  const currentVentures = getStoredVentures();
+  const res = await fetch("/api/ventures", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ventures: currentVentures,
+      stats,
+      password: password || "LGC@2026",
+    }),
+  });
+
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+    throw new Error(err.error || `Server responded with ${res.status}`);
+  }
+
+  const data = await res.json();
+  // Update universal memory state strictly upon successful cloud response
+  memoryStats = stats;
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent(SYNC_EVENT_NAME));
+  }
+
+  return { success: true, url: data.url };
 }
 
 let isSyncing = false;
@@ -214,14 +234,26 @@ export async function syncWithCloud(): Promise<void> {
   if (typeof window === "undefined" || isSyncing) return;
   isSyncing = true;
   try {
-    const res = await fetch("/api/ventures", { cache: "no-store" });
+    // Cache-busting timestamp to prevent mobile browsers from serving stale cache
+    const res = await fetch(`/api/ventures?t=${Date.now()}`, {
+      cache: "no-store",
+      headers: {
+        "Cache-Control": "no-cache, no-store, must-revalidate",
+        Pragma: "no-cache",
+      },
+    });
     if (res.ok) {
       const data = await res.json();
+      let hasChanges = false;
       if (data && Array.isArray(data.ventures) && data.ventures.length > 0) {
-        localStorage.setItem(STORAGE_KEY_VENTURES, JSON.stringify(data.ventures));
-        if (data.stats) {
-          localStorage.setItem(STORAGE_KEY_STATS, JSON.stringify(data.stats));
-        }
+        memoryVentures = data.ventures;
+        hasChanges = true;
+      }
+      if (data && data.stats && typeof data.stats === "object") {
+        memoryStats = { ...INITIAL_STATS, ...data.stats };
+        hasChanges = true;
+      }
+      if (hasChanges && typeof window !== "undefined") {
         window.dispatchEvent(new CustomEvent(SYNC_EVENT_NAME));
       }
     }
@@ -236,10 +268,7 @@ export function subscribeVenturesStore(callback: () => void): () => void {
   if (typeof window === "undefined") return () => {};
   const handler = () => callback();
   window.addEventListener(SYNC_EVENT_NAME, handler);
-  window.addEventListener("storage", handler);
   return () => {
     window.removeEventListener(SYNC_EVENT_NAME, handler);
-    window.removeEventListener("storage", handler);
   };
 }
-

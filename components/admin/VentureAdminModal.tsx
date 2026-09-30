@@ -18,14 +18,17 @@ import {
   Tag,
   FileText,
   ListPlus,
+  Lock,
+  AlertCircle,
+  Loader2,
 } from "lucide-react";
 import {
   VentureItem,
   LgcStats,
   getStoredVentures,
-  saveStoredVentures,
+  saveStoredVenturesAsync,
   getStoredStats,
-  saveStoredStats,
+  saveStoredStatsAsync,
   syncWithCloud,
   INITIAL_VENTURES,
   INITIAL_STATS,
@@ -38,6 +41,11 @@ interface VentureAdminModalProps {
 }
 
 export default function VentureAdminModal({ isOpen, onClose }: VentureAdminModalProps) {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+  const [passwordError, setPasswordError] = useState(false);
+  const [isSavingCloud, setIsSavingCloud] = useState(false);
+
   const [activeTab, setActiveTab] = useState<"list" | "add" | "stats">("list");
   const [ventures, setVentures] = useState<VentureItem[]>([]);
   const [stats, setStats] = useState<LgcStats>(INITIAL_STATS);
@@ -66,6 +74,10 @@ export default function VentureAdminModal({ isOpen, onClose }: VentureAdminModal
         setVentures(getStoredVentures());
         setStats(getStoredStats());
       });
+    } else {
+      setIsAuthenticated(false);
+      setPasswordInput("");
+      setPasswordError(false);
     }
   }, [isOpen]);
 
@@ -103,27 +115,43 @@ export default function VentureAdminModal({ isOpen, onClose }: VentureAdminModal
     setActiveTab("add");
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (confirm("Are you sure you want to remove this venture card from the active ecosystem?")) {
       const updated = ventures.filter((v) => v.id !== id);
-      setVentures(updated);
-      saveStoredVentures(updated);
-      showToast("Venture card removed successfully.");
+      setIsSavingCloud(true);
+      showToast("Syncing removal to Global Cloud...");
+      try {
+        await saveStoredVenturesAsync(updated, "LGC@2026");
+        setVentures(updated);
+        showToast("☁️ Venture card removed and synced globally!");
+      } catch (err) {
+        showToast(`❌ Cloud Sync Error: ${err instanceof Error ? err.message : "check Vercel storage"}`);
+      } finally {
+        setIsSavingCloud(false);
+      }
     }
   };
 
-  const handleResetDefaults = () => {
+  const handleResetDefaults = async () => {
     if (confirm("Reset all ventures and stats to original factory defaults? Any custom added ventures will be reset.")) {
-      setVentures(INITIAL_VENTURES);
-      saveStoredVentures(INITIAL_VENTURES);
-      setStats(INITIAL_STATS);
-      saveStoredStats(INITIAL_STATS);
-      resetForm();
-      showToast("Reset to factory defaults successfully.");
+      setIsSavingCloud(true);
+      showToast("Resetting global ecosystem to defaults...");
+      try {
+        await saveStoredVenturesAsync(INITIAL_VENTURES, "LGC@2026");
+        await saveStoredStatsAsync(INITIAL_STATS, "LGC@2026");
+        setVentures(INITIAL_VENTURES);
+        setStats(INITIAL_STATS);
+        resetForm();
+        showToast("☁️ Factory defaults restored & synced globally!");
+      } catch (err) {
+        showToast(`❌ Cloud Sync Error: ${err instanceof Error ? err.message : "check Vercel storage"}`);
+      } finally {
+        setIsSavingCloud(false);
+      }
     }
   };
 
-  const handleSaveVenture = (e: React.FormEvent) => {
+  const handleSaveVenture = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name.trim()) {
       alert("Please enter a venture name.");
@@ -154,9 +182,12 @@ export default function VentureAdminModal({ isOpen, onClose }: VentureAdminModal
       formData.image.trim() ||
       "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1200&auto=format&fit=crop";
 
+    let updated: VentureItem[];
+    let actionName = "";
+
     if (editingId) {
       // Update existing
-      const updated = ventures.map((item) => {
+      updated = ventures.map((item) => {
         if (item.id === editingId) {
           return {
             ...item,
@@ -174,9 +205,7 @@ export default function VentureAdminModal({ isOpen, onClose }: VentureAdminModal
         }
         return item;
       });
-      setVentures(updated);
-      saveStoredVentures(updated);
-      showToast(`Venture "${formData.name.toUpperCase()}" updated successfully!`);
+      actionName = `"${formData.name.toUpperCase()}" updated`;
     } else {
       // Create new
       const nextIndex = ventures.length + 1;
@@ -201,23 +230,134 @@ export default function VentureAdminModal({ isOpen, onClose }: VentureAdminModal
         subdomain: subdomain || `${formData.name.toLowerCase().replace(/[^a-z0-9]/g, "")}.lashkarigroup.online`,
       };
 
-      const updated = [...ventures, newItem];
-      setVentures(updated);
-      saveStoredVentures(updated);
-      showToast(`New Venture "${newItem.name}" added to scrolling carousel!`);
+      updated = [...ventures, newItem];
+      actionName = `New Venture "${newItem.name}" added`;
     }
 
-    resetForm();
-    setActiveTab("list");
+    setIsSavingCloud(true);
+    showToast("Transmitting changes to Global Cloud...");
+
+    try {
+      await saveStoredVenturesAsync(updated, "LGC@2026");
+      setVentures(updated);
+      showToast(`☁️ ${actionName} and live globally across all devices!`);
+      resetForm();
+      setActiveTab("list");
+    } catch (err) {
+      showToast(`❌ Cloud Save Failed: ${err instanceof Error ? err.message : "Vercel storage error"}`);
+    } finally {
+      setIsSavingCloud(false);
+    }
   };
 
-  const handleSaveStats = (e: React.FormEvent) => {
+  const handleSaveStats = async (e: React.FormEvent) => {
     e.preventDefault();
-    saveStoredStats(stats);
-    showToast("Ecosystem metrics updated successfully!");
+    setIsSavingCloud(true);
+    showToast("Transmitting numbers to Global Cloud...");
+    try {
+      await saveStoredStatsAsync(stats, "LGC@2026");
+      showToast("☁️ Ecosystem metrics saved globally across all devices!");
+    } catch (err) {
+      showToast(`❌ Cloud Save Failed: ${err instanceof Error ? err.message : "Vercel storage error"}`);
+    } finally {
+      setIsSavingCloud(false);
+    }
   };
 
   if (!isOpen) return null;
+
+  // ── MASTER SECURITY GATE: REQUIRES PASSWORD LGC@2026 ──
+  if (!isAuthenticated) {
+    return (
+      <div className="fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-[#0B0207]/85 backdrop-blur-xl animate-in fade-in duration-200">
+        <div className="relative w-full max-w-md rounded-[28px] border border-[#C9A84C]/60 bg-gradient-to-br from-[#1C0513] via-[#14020D] to-[#0A0107] text-white p-7 sm:p-8 shadow-[0_20px_70px_rgba(0,0,0,0.9),0_0_50px_rgba(201,168,76,0.22)] overflow-hidden">
+          {/* Top Gold Horizon */}
+          <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#C9A84C] to-transparent" />
+          <div className="absolute top-2 left-2 w-3 h-3 border-t border-l border-[#C9A84C] pointer-events-none" />
+          <div className="absolute top-2 right-2 w-3 h-3 border-t border-r border-[#C9A84C] pointer-events-none" />
+
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            type="button"
+            className="absolute top-4 right-4 w-8 h-8 rounded-full border border-white/10 hover:border-[#C9A84C] text-white/50 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+          >
+            <X className="w-4 h-4" />
+          </button>
+
+          <div className="flex flex-col items-center text-center space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#3D0A23] to-[#200512] border border-[#C9A84C]/60 flex items-center justify-center text-[#DFC17B] shadow-[0_0_24px_rgba(201,168,76,0.35)]">
+              <Lock className="w-6 h-6 text-[#C9A84C]" />
+            </div>
+
+            <div>
+              <span className="text-[10px] font-mono tracking-[0.35em] uppercase text-[#C9A84C] font-semibold block">
+                LGC SOVEREIGN SECURITY
+              </span>
+              <h2 className="text-xl sm:text-2xl font-serif text-white font-medium mt-1">
+                Executive Console Access
+              </h2>
+              <p className="text-xs text-white/60 font-mono mt-1">
+                Enter Master Authorization Key to configure live ventures
+              </p>
+            </div>
+
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (passwordInput === "LGC@2026") {
+                  setIsAuthenticated(true);
+                  setPasswordError(false);
+                } else {
+                  setPasswordError(true);
+                }
+              }}
+              className="w-full space-y-4 pt-2"
+            >
+              <div>
+                <input
+                  type="password"
+                  value={passwordInput}
+                  onChange={(e) => {
+                    setPasswordInput(e.target.value);
+                    setPasswordError(false);
+                  }}
+                  autoFocus
+                  placeholder="Enter Master Key (e.g. LGC@2026)"
+                  className={cn(
+                    "w-full px-4 py-3.5 rounded-xl bg-black/50 border text-sm text-center tracking-[0.25em] font-mono text-[#DFC17B] placeholder:text-white/30 placeholder:tracking-normal focus:outline-none transition-all",
+                    passwordError
+                      ? "border-red-500 shadow-[0_0_18px_rgba(239,68,68,0.45)]"
+                      : "border-[#C9A84C]/45 focus:border-[#C9A84C] focus:shadow-[0_0_20px_rgba(201,168,76,0.35)]"
+                  )}
+                />
+
+                {passwordError && (
+                  <div className="flex items-center justify-center gap-1.5 mt-2.5 text-xs font-mono text-red-400">
+                    <AlertCircle className="w-3.5 h-3.5" />
+                    <span>ACCESS DENIED · INVALID MASTER KEY</span>
+                  </div>
+                )}
+              </div>
+
+              <button
+                type="submit"
+                className="w-full py-3.5 rounded-xl bg-gradient-to-r from-[#C9A84C] via-[#E2C97E] to-[#C9A84C] text-[#120A0E] text-xs font-mono tracking-[0.25em] font-bold uppercase hover:brightness-110 active:scale-[0.98] transition-all shadow-[0_4px_20px_rgba(201,168,76,0.4)] cursor-pointer"
+              >
+                Unlock Console →
+              </button>
+            </form>
+
+            <div className="pt-2">
+              <span className="text-[9.5px] font-mono text-white/40 tracking-wider">
+                CENTRAL CLOUD STORAGE // MULTI-DEVICE WORLDWIDE REPLICATION
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="fixed inset-0 z-[99999] flex items-center justify-center p-3 sm:p-6 bg-[#0B0207]/80 backdrop-blur-md animate-in fade-in duration-200">
@@ -622,10 +762,24 @@ export default function VentureAdminModal({ isOpen, onClose }: VentureAdminModal
 
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#FF3366] via-[#E23E6E] to-[#C9A84C] text-white text-xs font-mono font-bold uppercase tracking-wider flex items-center space-x-2 shadow-[0_0_20px_rgba(255,51,102,0.4)] hover:scale-105 transition-all cursor-pointer"
+                  disabled={isSavingCloud}
+                  className={cn(
+                    "px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#FF3366] via-[#E23E6E] to-[#C9A84C] text-white text-xs font-mono font-bold uppercase tracking-wider flex items-center space-x-2 shadow-[0_0_20px_rgba(255,51,102,0.4)] transition-all cursor-pointer",
+                    isSavingCloud ? "opacity-75 cursor-wait" : "hover:scale-105"
+                  )}
                 >
-                  <Save className="w-4 h-4" />
-                  <span>{editingId ? "SAVE CHANGES TO CARD" : "ADD CARD TO ECOSYSTEM"}</span>
+                  {isSavingCloud ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-[#DFC17B]" />
+                  ) : (
+                    <Save className="w-4 h-4" />
+                  )}
+                  <span>
+                    {isSavingCloud
+                      ? "SAVING TO GLOBAL CLOUD..."
+                      : editingId
+                      ? "SAVE CHANGES TO CARD"
+                      : "ADD CARD TO ECOSYSTEM"}
+                  </span>
                 </button>
               </div>
             </form>
@@ -707,10 +861,20 @@ export default function VentureAdminModal({ isOpen, onClose }: VentureAdminModal
               <div className="flex justify-end pt-3 border-t border-white/10">
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#C9A84C] via-[#DFC17B] to-[#C9A84C] text-[#120A0E] text-xs font-mono font-bold uppercase tracking-wider flex items-center space-x-2 shadow-[0_0_20px_rgba(201,168,76,0.35)] hover:scale-105 transition-all cursor-pointer"
+                  disabled={isSavingCloud}
+                  className={cn(
+                    "px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#C9A84C] via-[#DFC17B] to-[#C9A84C] text-[#120A0E] text-xs font-mono font-bold uppercase tracking-wider flex items-center space-x-2 shadow-[0_0_20px_rgba(201,168,76,0.35)] transition-all cursor-pointer",
+                    isSavingCloud ? "opacity-75 cursor-wait" : "hover:scale-105"
+                  )}
                 >
-                  <Save className="w-4 h-4" />
-                  <span>SAVE ECOSYSTEM NUMBERS</span>
+                  {isSavingCloud ? (
+                    <Loader2 className="w-4 h-4 animate-spin text-[#120A0E]" />
+                  ) : (
+                    <Save className="w-4 h-4" />
+                  )}
+                  <span>
+                    {isSavingCloud ? "SAVING NUMBERS TO CLOUD..." : "SAVE ECOSYSTEM NUMBERS"}
+                  </span>
                 </button>
               </div>
             </form>
