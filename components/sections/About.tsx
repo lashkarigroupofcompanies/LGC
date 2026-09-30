@@ -295,6 +295,19 @@ export default function About() {
               </div>
             ))}
           </div>
+
+          {/* MSME Registered Enterprise Accreditation */}
+          <div className="mt-8 pt-6 border-t border-[rgba(201,168,76,0.2)] flex flex-col sm:flex-row items-center justify-between gap-3 text-xs font-mono">
+            <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 text-[#DFC17B]">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+              <span className="tracking-widest font-semibold uppercase">MSME REGISTERED ENTERPRISE</span>
+              <span className="text-white/40">·</span>
+              <span className="text-white font-mono font-bold tracking-wider">UDYAM-GJ-01-0689750</span>
+            </div>
+            <span className="text-[11.5px] text-[rgba(255,255,255,0.7)] font-sans text-center sm:text-right">
+              Registered with the Ministry of Micro, Small & Medium Enterprises, Government of India
+            </span>
+          </div>
         </div>
       </div>
     </section>

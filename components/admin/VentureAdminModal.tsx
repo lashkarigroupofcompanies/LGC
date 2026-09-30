@@ -396,6 +396,10 @@ export default function VentureAdminModal({ isOpen, onClose }: VentureAdminModal
                   <span>☁️</span>
                   <span>CLOUD SYNC</span>
                 </span>
+                <span className="hidden sm:inline-flex px-2 py-0.2 rounded-full text-[9px] font-mono bg-emerald-500/15 text-emerald-300 border border-emerald-500/35 items-center gap-1">
+                  <span>🏛️</span>
+                  <span>MSME: UDYAM-GJ-01-0689750</span>
+                </span>
               </div>
               <h3
                 className="text-lg sm:text-xl font-serif text-white font-medium tracking-wide"

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { ArrowUpRight, Mail, MapPin, Send, Sparkles, Building, Globe, CheckCircle2 } from "lucide-react";
+import { ArrowUpRight, Mail, MapPin, Send, Sparkles, Building, Globe, CheckCircle2, ShieldCheck } from "lucide-react";
 import SectionAtmosphere from "@/components/ecosystem/SectionAtmosphere";
 import VentureAdminModal from "@/components/admin/VentureAdminModal";
 import { getStoredVentures, subscribeVenturesStore, syncWithCloud, VentureItem } from "@/lib/venturesStore";
@@ -462,18 +462,33 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* Col 4: Executive Headquarters Notice */}
+            {/* Col 4: Executive Headquarters & Statutory */}
             <div className="space-y-3">
               <span
                 className="text-[10.5px] font-mono uppercase tracking-[0.25em] text-[#C9A84C] font-semibold block"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
-                GOVERNANCE
+                GOVERNANCE & STATUTORY
               </span>
               <p className="text-[12px] text-[#A8BCA0] leading-relaxed font-light">
                 Registered under the Lashkari sovereign enterprise charter. Built on zero third-party dependency, proprietary IP, and autonomous capital allocation.
               </p>
-              <div className="pt-2 text-[11px] font-mono text-[#DFC17B]">
+              
+              {/* MSME Statutory Badge */}
+              <div className="p-3 rounded-xl bg-gradient-to-br from-[#0E1F14] to-[#08120B] border border-[#C9A84C]/40 space-y-1 shadow-[0_4px_16px_rgba(0,0,0,0.4)]">
+                <div className="flex items-center space-x-1.5 text-xs font-mono font-bold text-white">
+                  <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span className="tracking-wider text-[#DFC17B]">MSME CERTIFIED BUSINESS</span>
+                </div>
+                <div className="text-[11px] font-mono text-white tracking-widest font-bold">
+                  UDYAM-GJ-01-0689750
+                </div>
+                <div className="text-[10px] text-[#8C9E87] leading-tight">
+                  Ministry of MSME, Govt. of India
+                </div>
+              </div>
+
+              <div className="pt-1 text-[11px] font-mono text-[#DFC17B]">
                 CHAIRMAN & CEO OFFICE
               </div>
               <div className="text-[11px] font-mono text-[#BAC7B5]">
@@ -482,8 +497,44 @@ export default function Footer() {
             </div>
           </div>
 
+          {/* ── MSME STATUTORY CERTIFICATION PLINTH (GOVT. OF INDIA) ── */}
+          <div className="my-8 p-5 sm:p-6 rounded-2xl border border-[#C9A84C]/50 bg-gradient-to-r from-[#140610] via-[#0E1F14] to-[#140610] shadow-[0_12px_45px_rgba(0,0,0,0.6),0_0_24px_rgba(201,168,76,0.18)] relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-5">
+            <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#C9A84C] to-transparent" />
+            
+            <div className="flex items-center space-x-4">
+              <div className="w-12 h-12 rounded-2xl bg-[#1A3322] border border-[#C9A84C]/70 flex items-center justify-center shrink-0 shadow-[0_0_20px_rgba(201,168,76,0.3)]">
+                <ShieldCheck className="w-6 h-6 text-[#DFC17B]" />
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <span className="text-[10.5px] font-mono uppercase tracking-[0.25em] text-[#C9A84C] font-bold">
+                    MSME REGISTERED ENTERPRISE
+                  </span>
+                  <span className="px-2.5 py-0.5 rounded-full text-[9px] font-mono bg-emerald-500/20 text-emerald-300 border border-emerald-500/50 font-semibold tracking-wider">
+                    GOVT. OF INDIA VERIFIED
+                  </span>
+                </div>
+                <h4
+                  className="text-base sm:text-lg font-serif text-white font-medium tracking-wide mt-1"
+                  style={{ fontFamily: "'Cormorant Garamond', serif" }}
+                >
+                  Udyam Registration No. <span className="font-mono text-[#DFC17B] font-bold tracking-widest text-sm sm:text-base">UDYAM-GJ-01-0689750</span>
+                </h4>
+              </div>
+            </div>
+
+            <div className="text-left md:text-right border-t md:border-t-0 pt-3 md:pt-0 border-white/10 w-full md:w-auto">
+              <p className="text-[12.5px] text-[#D5DDD2] font-light max-w-md leading-relaxed">
+                Registered with the Ministry of Micro, Small & Medium Enterprises, Government of India.
+              </p>
+              <span className="text-[10px] font-mono text-[#8C9E87] tracking-[0.2em] block mt-1 uppercase">
+                OFFICIALLY RECOGNIZED SOVEREIGN COMMERCIAL ENTERPRISE · GUJARAT, INDIA
+              </span>
+            </div>
+          </div>
+
           {/* Bottom Copyright Bar with Clickable © Console Key */}
-          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-[11px] font-mono text-[#8C9E87] space-y-3 sm:space-y-0">
+          <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between text-[11px] font-mono text-[#8C9E87] space-y-3 sm:space-y-0">
             <div className="flex items-center">
               <button
                 type="button"
@@ -498,9 +549,11 @@ export default function Footer() {
               </button>
               <span>2026 LASHKARI GROUP OF COMPANIES (LGC). ALL RIGHTS RESERVED.</span>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+              <span className="text-[#DFC17B]">UDYAM-GJ-01-0689750</span>
+              <span className="hidden sm:inline text-white/30">·</span>
               <span>SOVEREIGN ENTERPRISE ARCHITECTURE</span>
-              <span>·</span>
+              <span className="text-white/30">·</span>
               <span className="text-[#C9A84C]">EST. 2026</span>
             </div>
           </div>
