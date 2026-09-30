@@ -53,10 +53,11 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({ success: true, url: blob.url });
-  } catch (err: any) {
+  } catch (err) {
     console.error("Error saving to Vercel Blob:", err);
+    const message = err instanceof Error ? err.message : "Failed to save";
     return NextResponse.json(
-      { error: err.message || "Failed to save" },
+      { error: message },
       { status: 500 }
     );
   }

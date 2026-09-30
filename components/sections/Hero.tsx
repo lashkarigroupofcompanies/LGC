@@ -3,7 +3,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import SectionAtmosphere from "@/components/ecosystem/SectionAtmosphere";
 
